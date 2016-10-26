@@ -1,0 +1,175 @@
+`timescale 1ns / 1ps
+
+////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer:
+//
+// Create Date:   01:01:03 10/26/2016
+// Design Name:   ESC_RTC
+// Module Name:   C:/Users/Edwin/Documents/ISE Projects/Proyecto 3 Lab. Digitales/ESC_RTC/ESC_RTC_TB.v
+// Project Name:  ESC_RTC
+// Target Device:  
+// Tool versions:  
+// Description: 
+//
+// Verilog Test Fixture created by ISE for module: ESC_RTC
+//
+// Dependencies:
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+////////////////////////////////////////////////////////////////////////////////
+
+module ESC_RTC_TB;
+
+	// Inputs
+	reg clk;
+	reg reset;
+	reg esc_hora;
+	reg esc_fecha;
+	reg esc_timer;
+	reg stop_ring;
+	reg inic;
+
+	// Outputs
+	wire a_d;
+	wire cs;
+	wire rd;
+	wire wr;
+	wire dir_com_c;
+	wire dir_com_t;
+	wire dir_st0;
+	wire dir_st1;
+	wire dir_st2;
+	wire dir_seg;
+	wire dir_min;
+	wire dir_hora;
+	wire dir_dia;
+	wire dir_mes;
+	wire dir_anio;
+	wire dir_tseg;
+	wire dir_tmin;
+	wire dir_thora;
+	wire seg_out;
+	wire min_out;
+	wire hora_out;
+	wire dia_out;
+	wire mes_out;
+	wire anio_out;
+	wire tseg_out;
+	wire tmin_out;
+	wire thora_out;
+	wire st0_out;
+	wire st1_out;
+	wire st2_out;
+	wire ready;
+	wire estado_esc;
+
+	// Instantiate the Unit Under Test (UUT)
+	ESC_RTC uut (
+		.clk(clk), 
+		.reset(reset), 
+		.esc_hora(esc_hora), 
+		.esc_fecha(esc_fecha), 
+		.esc_timer(esc_timer), 
+		.stop_ring(stop_ring), 
+		.inic(inic), 
+		.a_d(a_d), 
+		.cs(cs), 
+		.rd(rd), 
+		.wr(wr), 
+		.dir_com_c(dir_com_c), 
+		.dir_com_t(dir_com_t), 
+		.dir_st0(dir_st0), 
+		.dir_st1(dir_st1), 
+		.dir_st2(dir_st2), 
+		.dir_seg(dir_seg), 
+		.dir_min(dir_min), 
+		.dir_hora(dir_hora), 
+		.dir_dia(dir_dia), 
+		.dir_mes(dir_mes), 
+		.dir_anio(dir_anio), 
+		.dir_tseg(dir_tseg), 
+		.dir_tmin(dir_tmin), 
+		.dir_thora(dir_thora), 
+		.seg_out(seg_out), 
+		.min_out(min_out), 
+		.hora_out(hora_out), 
+		.dia_out(dia_out), 
+		.mes_out(mes_out), 
+		.anio_out(anio_out), 
+		.tseg_out(tseg_out), 
+		.tmin_out(tmin_out), 
+		.thora_out(thora_out), 
+		.st0_out(st0_out), 
+		.st1_out(st1_out), 
+		.st2_out(st2_out), 
+		.ready(ready), 
+		.estado_esc(estado_esc)
+	);
+
+	always #5 clk = !clk;
+	
+	initial begin
+		// Initialize Inputs
+		clk = 0;
+		reset = 1;
+		esc_hora = 0;
+		esc_fecha = 0;
+		esc_timer = 0;
+		stop_ring = 0;
+		inic = 1;
+
+		#100;
+      reset = 0;
+		#2640;
+		inic = 0;
+		#360;
+		reset = 1;
+		
+		#100;
+		esc_fecha = 1;
+      reset = 0;
+		#2640;
+		esc_fecha = 0;
+		#360;
+		reset = 1;
+		
+		#100;
+		esc_hora = 1;
+      reset = 0;
+		#2640;
+		esc_hora = 0;
+		#360;
+		reset = 1;
+		
+		#100;
+		esc_timer = 1;
+      reset = 0;
+		#2640;
+		esc_timer = 0;
+		#360;
+		reset = 1;
+		
+		#100;
+		stop_ring = 1;
+      reset = 0;
+		#2640;
+		stop_ring = 0;
+		#360;
+		//reset = 1;
+		
+		/*#100;
+		stop_timer = 1;
+      reset = 0;
+		#2640;
+		stop_timer = 0;
+		#360;*/
+		
+		$stop;
+	end
+      
+endmodule
+
