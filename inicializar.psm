@@ -1,4 +1,4 @@
-﻿; *****************************************************************************************************************************
+; *****************************************************************************************************************************
 ; \navGrpBegin "Directives"
 ; *****************************************************************************************************************************
 
@@ -195,10 +195,12 @@ main:
 		
 		
 inicializar:
-		
-		wrprt 0x02, dir_st2
-		wrprt 0x10, st2_out
-		wrprt 0x02, dir_st2
+		load s0, 0x02
+		wrprt s0, dir_st2
+		load s0, 0x10
+		wrprt s0, st2_out
+		load s0, 0X02
+		wrprt s0, dir_st2
 		wrprt 0x00, st2_out
 		wrprt 0x00, seg_out
 		wrprt 0x00, min_out
@@ -209,9 +211,12 @@ inicializar:
 		wrprt 0x00, tseg_out
 		wrprt 0x00, tmin_out
 		wrprt 0x00, thora_out
-		wrprt 0xF0, dir_com_cyt
-		wrprt 0xF1, dir_com_c
-		wrprt 0XF2, dir_com_t
+		load s0, 0XF0
+		wrprt s0, dir_com_cyt
+		load s0, 0XF1
+		wrprt s0, dir_com_c
+		load s0, 0XF2
+		wrprt s0, dir_com_t
 		ret
 	
 
