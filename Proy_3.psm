@@ -1,0 +1,290 @@
+; *****************************************************************************************************************************
+; \navGrpBegin "Directives"
+; *****************************************************************************************************************************
+
+	; *************************************************************************************************************************
+	; !!! The set directives overwrites the configuration dialog settings !!!
+	; *************************************************************************************************************************
+
+	; *************************************************************************************************************************
+	;  \navSep "Editor config"
+	; *************************************************************************************************************************
+		#set editor::tabIndent,							4
+
+	; *************************************************************************************************************************
+	; \navSep "Xilinx PicoBlaze core configuration"
+	; *************************************************************************************************************************
+		#ifDef proc::xPblze6
+	
+			#set proc::xPblze6::scrpdSize,				64						; [64, 128, 256]
+;			#set proc::xPblze6::scrpdioDev,				ioDev::yourDev
+			#set proc::xPblze6::intVector,				1023					; [0 to 4095]
+			#set proc::xPblze6::clkFreq,				100000000					; in Hz
+			
+		#elseIf proc::xPblze3
+	
+;			#set proc::XPblze3::scrpdioDev,				ioDev::yourDev
+			#set proc::XPblze3::clkFreq,				100000000					; in Hz
+		#endIf
+		
+	; *************************************************************************************************************************
+	;  \navSep "Instruction memory config"
+	; *************************************************************************************************************************
+		#set instmem::pageSize,							1024
+		#set instmem::pageCount,						1
+;		#set instmem::sharedMemLocation,				hiMem					; [ hiMem, loMem ]
+
+	; *************************************************************************************************************************
+	;  \navSep "ioDevice for instruction memory"
+	; *************************************************************************************************************************
+		#set ioDev::page0::en,							true					; [ true | false ]
+		#set ioDev::page0::type,						mem						; [ mem | fifo | reg ]
+		#set ioDev::page0::size,						1024					; Multiple of 2
+		#set ioDev::page0::baseAddr,					0x00
+		#set ioDev::page0::simEn,						false					; Enabling IO device in simulator
+; 		#set ioDev::page0::simAccessMode,				rd						; [ rdWr, rd, wr ]
+	
+		#set ioDev::page0::initValue,					0x00000					; Initial value
+	
+;		#set ioDev::page0::value,						0x33, 0x44, 0x55
+;		#set ioDev::page0::value,						0x10: 0x33, 0x44, 0x55
+;		#set ioDev::page0::value,						0x01: 0x33
+;		#set ioDev::page0::value,						0x02: 0x44
+; 		#set ioDev::page0::value,						append: 0x33, 0x44, 0x55
+; 		#set ioDev::page0::value,						append: 0x66, 0x77, 0x88
+
+		#set ioDev::page0::value,						instMem
+;		#set ioDev::page0::value,						instMem[page0]
+;		#set ioDev::page0::value,						instMem[0..1023]
+;		#set ioDev::page0::value,						instMem[page0][7..0]
+;		#set ioDev::page0::value,						instMem[0..1023][7..0]
+;		#set ioDev::page0::value,						instMem[1023..0]
+	
+	
+;		#set ioDev::page0::vhdlEn,						true					; Enable/disable vhdl output
+;		#set ioDev::page0::vhdlEntityName,				"vhdlPblzeRom"			; VHDL entity name
+;		#set ioDev::page0::vhdlTmplFile,				"tmpl.vhd"				; VHDL template file
+;		#set ioDev::page0::vhdlTargetFile,				"out.vhd"				; VHDL target file
+	
+;		#set ioDev::page0::verilogEn,					true					; Enable/disable verilog output
+;		#set ioDev::page0::verilogEntityName,			"verilogPblzeRom"		; VHDL entity name
+;		#set ioDev::page0::verilogTmplFile,				"tmpl.v"					; VHDL template file
+;		#set ioDev::page0::verilogTargetFile,			"out.v"					; VHDL target file
+	
+;		#set ioDev::page0::hexEn,						true					; Enable/disable hex output
+;		#set ioDev::page0::hexTargetFile,				"out.hex"				; Hex target file
+	
+;		#set ioDev::page0::memEn,						true					; Enable/disable mem output
+;		#set ioDev::page0::memTargetFile,				"out.mem"				; Mem target file
+;		#set ioDev::page0::memGapStuffing,				true					; Mem gap stuffing enable: [ true | false ]
+
+	; *************************************************************************************************************************
+	; \navSep "rxFIFO"
+	;
+	; Setting up a small FIFO for simulation purposes.
+	; *************************************************************************************************************************
+	
+		; rxFIFO data
+		#set ioDev::rxFIFO::en,					true					; [ true | false ]
+		#set ioDev::rxFIFO::type,				fifo					; [ mem | fifo | reg ]
+		#set ioDev::rxFIFO::size,				32						; Multiple of 2
+		#set ioDev::rxFIFO::baseAddr,			0x20
+		#set ioDev::rxFIFO::simEn,				true					; Enabling IO device in simulator
+		#set ioDev::rxFIFO::simAccessMode,		rd						; [ rdWr, rd, wr ]
+	
+		#set ioDev::rxFIFO::initValue,			0x00000					; Initial value
+
+		#set ioDev::rxFIFO::value,				append: 0x01, 0x89, 0x8d, 0x8a, 0xe7, 0xc0, 0xa0, 0x04
+		#set ioDev::rxFIFO::value,				append: 0x01, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x04
+
+	; *************************************************************************************************************************
+	; \navHw "Register renaming"
+	; *************************************************************************************************************************
+		#equ reg_work, 			sF
+	
+	; *************************************************************************************************************************
+	; \navHw "Port addresses"
+	; *************************************************************************************************************************
+		#equ busAddr_intReg,	0x01
+		#equ busAddr_dbg,		0xFF
+	
+; *****************************************************************************************************************************
+; \navGrpEnd
+; \navGrpBegin "Sources"
+; *****************************************************************************************************************************
+
+; *****************************************************************************************************************************
+; Main function
+; *****************************************************************************************************************************
+	
+	;------- Puertos de salida -------
+	
+	;RTC.
+	
+	#equ inic, 0x21
+	#equ leer, 0x04
+	#equ esc_fecha, 0x03
+	#equ esc_hora, 0x02
+	#equ esc_timer, 0x01
+	#equ stop_timer, 0x20
+	#equ stop_ring, 0x00
+	
+	#equ dir_com_cyt, 0x13	
+	#equ dir_com_c, 0x12
+	#equ dir_com_t, 0x11
+	
+	#equ dir_st0, 0x1F
+	#equ dir_st1, 0x1E
+	#equ dir_st2, 0x1D
+	
+	#equ dir_seg, 0x1C
+	#equ dir_min, 0x1B
+	#equ dir_hora, 0x1A
+	#equ dir_dia, 0x19
+	#equ dir_mes, 0x18
+	#equ dir_anio, 0x17
+	#equ dir_tseg, 0x16
+	#equ dir_tmin, 0x15
+	#equ dir_thora, 0x14
+	
+	#equ st0_out, 0x10
+	#equ st1_out, 0x0F
+	#equ st2_out, 0x0E
+	
+	#equ seg_out, 0x0D
+	#equ min_out, 0x0C
+	#equ hora_out, 0x0B
+	#equ dia_out, 0x0A
+	#equ mes_out, 0x09
+	#equ anio_out, 0x08
+	#equ tseg_out, 0x07
+	#equ tmin_out, 0x06
+	#equ thora_out, 0x05
+	
+	;VGA.
+	
+	#equ vga_seg, 0x2E
+	#equ vga_min, 0x2D
+	#equ vga_hora, 0x2C
+	#equ vga_dia, 0x2B
+	#equ vga_mes, 0x2A
+	#equ vga_anio, 0x29
+	#equ vga_tseg, 0x28
+	#equ vga_tmin, 0x27
+	#equ vga_thora, 0x26
+	
+	#equ cursor_tim, 0x25
+	#equ cursor_hora, 0x24
+	#equ cursor_fecha, 0x23
+	
+	#equ alarma_on, 0x22
+	
+	
+	;------- Puertos de entrada -------
+	
+	;RTC.
+	
+	#equ seg_in, 0x0A
+	#equ min_in, 0x09
+	#equ hora_in, 0x08
+	#equ dia_in, 0x07
+	#equ mes_in, 0x06
+	#equ anio_in, 0x05
+	#equ tseg_in, 0x04
+	#equ tmin_in, 0x03
+	#equ thora_in, 0x02
+	
+	#equ ready, 0x01
+	#equ irq, 0x00
+	
+	;Teclado.
+	
+	#equ new_data, 0x11
+	#equ data, 0x10
+	
+	
+	; Direcciones para RTC.
+		
+	; Datos para RTC.
+	#EQU dat_esc_init, 0x10
+	#EQU dat_tim_en, 0x08
+	#EQU dat_tim_mask, 0x04
+	#EQU dat_59, 0x59
+
+leer_rtc:
+	
+	wrprt 0x01, leer ; activa máquina de lectura.
+	jump esp_leer
+	
+	esp_leer:
+	rdprt s0, ready ; lee puerto ready.
+	comp s0, 0x01 ; ready?
+	jump z, lect_leer ; sí => pase a leer los datos del rtc.
+	jump esp_leer ; no => espere, vuelva a preguntar.
+	
+	lect_leer: 
+	wrprt 0x00, leer ; datos listos => desactivar leer.
+	; lectura de los datos del rtc.
+	rdprt s1, seg_in
+	rdprt s2, min_in
+	rdprt s3, hora_in
+	rdprt s4, dia_in
+	rdprt s5, mes_in
+	rdprt s6, anio_in
+	rdprt s7, tseg_in
+	rdprt s8, tmin_in
+	rdprt s9, thora_in
+	; escritura de los datos del rtc en la vga.
+	;Hay que hacer la resta del timer.
+	wrprt s1, vga_seg
+	wrprt s2, vga_min
+	wrprt s3, vga_hora
+	wrprt s4, vga_dia
+	wrprt s5, vga_mes
+	wrprt s6, vga_anio
+	wrprt s7, vga_tseg
+	wrprt s8, vga_tmin
+	wrprt s9, vga_thora
+	;ret ; regreso a main.	
+jump leer_rtc ; provisional
+		
+	
+	;				int		enable
+
+					; Do your staff here
+
+	;mainLoop: 		jump	mainLoop
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+; *****************************************************************************************************************************
+; Interrupt service routine
+; *****************************************************************************************************************************
+isr:
+
+					rdPrt	reg_work,	busAddr_intReg
+					wrPrt	reg_work,	busAddr_dbg
+
+					
+					; Do your staff here
+					
+					retI	enable
+
+					#org	addr,		0x3FF
+					jump	isr
+					
+; *****************************************************************************************************************************
+; \navGrpEnd
+; *****************************************************************************************************************************
