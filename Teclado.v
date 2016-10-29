@@ -125,8 +125,38 @@ module Teclado(
    assign dout = b_reg[8:1]; // data bits
 	
 
+
+
+/*
+
+
+registro llegoF0
+reg llegoF0;
+
+always@(posedge clk or posegedge rst) begin 
+	if(rst)
+		llegoF0 <= 0;
+	else
+		if(~llegoF0)
+			llegoF0 <= ~tick ? 0:
+						dato_sal==8'hF0? 1: 0;
+		else
+			llegoF0 <= ~tick ? 1:0;
+end
+
+
+
+
+
+
+
+
+*/
+
+
 	always @*
-	begin
+	begin 
+	
 		if (rx_done_tick==1) begin
 			if (dout==8'hF0) begin
 				detec1 = dout;
@@ -149,8 +179,13 @@ module Teclado(
 							letra1=dout; //flecha izquierda
 						8'h72:
 							letra1=dout; //flecha abajo
-						8'h76:
+						8'h76: 
 							letra1=dout; //tecla ESC
+						default:
+							begin
+							letra1=0;
+							detec1=0;
+							end
 					endcase
 					detec1=0;
 				end
@@ -161,7 +196,7 @@ module Teclado(
 		end
 		else begin
 				detec1 = detec;
-				letra1=0; //se reinicia el valor de letra, si el tiempo de envio de dato es de 10ns
+				//letra1=0; //se reinicia el valor de letra, si el tiempo de envio de dato es de 10ns
 				//letra1=0; //solo si el valor de la letra al enviarse, es por un tiempo de 1,2ms aprox
 		end
 	end
@@ -173,3 +208,55 @@ module Teclado(
 	assign detec = detec1; //detec es tipo wire [7:0]
 	
 endmodule
+
+/*always @ (posedge clk, posedge reset)
+	begin
+	if (reset) begin
+		detec1<=0;
+		letra1<=0;
+	end
+	else 
+		if (rx_done_tick==1) begin
+			if (dout==8'hF0) begin
+				detec1 <= dout;
+			end
+			else begin
+				if (detec==8'hF0) begin
+					//letra1=dout;
+					case (dout)
+						8'h2B:
+							letra1<=dout; //letra F
+						8'h33:
+							letra1<=dout; //letra H
+						8'h2C:
+							letra1<=dout; //letra T
+						8'h75:
+							letra1<=dout; //flecha arriba
+						8'h74:
+							letra1<=dout; //flecha derecha
+						8'h6B:
+							letra1<=dout; //flecha izquierda
+						8'h72:
+							letra1<=dout; //flecha abajo
+						8'h76:
+							letra1<=dout; //tecla ESC
+						default:
+							begin
+							letra1<=0;
+							detec1<=0;
+							end
+					endcase
+					detec1<=0;
+				end
+				else
+					//letra1=0;
+					cont<=0;
+			end
+		end
+		else begin
+				detec1 <= detec;
+				letra1 <= letra1;
+				//letra1=0; //se reinicia el valor de letra, si el tiempo de envio de dato es de 10ns
+				//letra1=0; //solo si el valor de la letra al enviarse, es por un tiempo de 1,2ms aprox
+		end
+	end*/
