@@ -19,7 +19,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 module Teclado(
-    input wire clk, reset,
+    input wire clk, reset, new_data_pico,
     input wire ps2d, ps2c, rx_en,
     output reg rx_done_tick,
     output wire [7:0] dout,
@@ -131,20 +131,26 @@ module Teclado(
 	
 
 
+//Parte para reiniciar la bandera de new_data, cuando recibe dato del pico que ya se leyó el dato
+//se metió, en el codigo siguiente
+//	always@ *
+//	begin
+//		if (new_data_pico)
+//			new_data=0;
+//		else
+//			new_data = new_data;
+//	end
 
-
-
-
-//registro llegoF0
-//	reg llegoF; //registro llego F0 ponerlo luego aqui, primero colocar como salida, para ver su comportamiento
-
-always @ (posedge clk, posedge reset)
+//selector de letra leyendola del codigo anterior
+	always @ (posedge clk, posedge reset)
 	begin
 		if (reset) begin
 			llegoF1<=0;
 			letra<=0;
 			new_data<=0;
 		end
+		else if (new_data_pico) //bandera de new_data_pico //no se si estara bien esto aqui
+			new_data<=0;
 		else if (rx_done_tick==1) begin
 			if (dout==8'hF0) begin
 				llegoF1 <= 1;
@@ -213,7 +219,7 @@ always @ (posedge clk, posedge reset)
 		end //end del else if
 		else begin
 			letra <= letra;
-			//new_data<=0; //dura el new_data 10ns
+			new_data<=new_data; //es parte de la bandera de new_data_pico, no se si va aqui
 			
 		end
 	end
