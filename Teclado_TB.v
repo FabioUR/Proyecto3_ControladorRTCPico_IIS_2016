@@ -33,9 +33,10 @@ module Teclado_TB;
 
 	// Outputs
 	wire rx_done_tick;
-	wire [7:0] dout;
-	wire [7:0] detec;
+	//wire [7:0] dout;
+	//wire llegoF;
 	wire [7:0] letra;
+	reg new_data;
 
 	// Instantiate the Unit Under Test (UUT)
 	Teclado uut (
@@ -45,8 +46,9 @@ module Teclado_TB;
 		.ps2c(ps2c), 
 		.rx_en(rx_en), 
 		.rx_done_tick(rx_done_tick), 
-		.dout (dout),
-		.detec(detec),
+		//.dout (dout),
+		//.llegoF(llegoF),
+		.new_data(new_data),
 		.letra(letra)
 	);
 
@@ -146,42 +148,8 @@ module Teclado_TB;
 		@(posedge ps2c)
 		ps2d=0;//extra
 		
-		//meto F0
-		//@(posedge ps2c)
-		//ps2d=0; //start bit
 		
-		@(posedge ps2c)
-		ps2d=0;
 		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=0;//parity
-		
-		@(posedge ps2c)
-		ps2d=1; //stop
-		
-		@(posedge ps2c)
-		ps2d=0;//extra
 		
 		//meto F0
 		//@(posedge ps2c)
@@ -219,58 +187,118 @@ module Teclado_TB;
 		
 		@(posedge ps2c)
 		ps2d=0;//extra
+		
+		//METO 74 
+		
+		@(posedge ps2c)
+		ps2d=0;
+		
+		@(posedge ps2c)
+		ps2d=0;
+		
+		@(posedge ps2c)
+		ps2d=1;
+		
+		@(posedge ps2c)
+		ps2d=0;
+		
+		@(posedge ps2c)
+		ps2d=1;
+		
+		@(posedge ps2c)
+		ps2d=1;
+		
+		@(posedge ps2c)
+		ps2d=1;
+		
+		@(posedge ps2c)
+		ps2d=0;
+		
+		@(posedge ps2c)
+		ps2d=0;//parity
+		
+		@(posedge ps2c)
+		ps2d=1; //stop
+		
+		@(posedge ps2c)
+		ps2d=0;//extra
+
+//meto F0
+		//@(posedge ps2c)
+		//ps2d=0; //start bit
+		
+		@(posedge ps2c)
+		ps2d=0;
+		
+		@(posedge ps2c)
+		ps2d=0;
+		
+		@(posedge ps2c)
+		ps2d=0;
+		
+		@(posedge ps2c)
+		ps2d=0;
+		
+		@(posedge ps2c)
+		ps2d=1;
+		
+		@(posedge ps2c)
+		ps2d=1;
+		
+		@(posedge ps2c)
+		ps2d=1;
+		
+		@(posedge ps2c)
+		ps2d=1;
+		
+		@(posedge ps2c)
+		ps2d=0;//parity
+		
+		@(posedge ps2c)
+		ps2d=1; //stop
+		
+		@(posedge ps2c)
+		ps2d=0;
+		
+		//letra 76
+		
+		@(posedge ps2c)
+		ps2d=0;
+		
+		@(posedge ps2c)
+		ps2d=1;
+		
+		@(posedge ps2c)
+		ps2d=1;
+		
+		@(posedge ps2c)
+		ps2d=0;
+		
+		@(posedge ps2c)
+		ps2d=1;
+		
+		@(posedge ps2c)
+		ps2d=1;
+		
+		@(posedge ps2c)
+		ps2d=1;
+		
+		@(posedge ps2c)
+		ps2d=0;
+		
+		@(posedge ps2c)
+		ps2d=0;//parity
+		
+		@(posedge ps2c)
+		ps2d=1; //stop
+		
+		@(posedge ps2c)
+		ps2d=0;//extra
+		
 		$stop;
 		
 	end
       
 endmodule
 
-/*forever @(posedge ps2c) begin
-		
-			if (cont==0) begin
-				ps2d = 0;
-				cont = cont+1'b1;
-			end
-			else if (cont==1) begin
-				ps2d = 0;
-				cont = cont+1'b1;
-			end
-			else if (cont==2) begin
-				ps2d = 0;
-				cont = cont+1'b1;
-			end
-			else if (cont==3) begin
-				ps2d = 1;	
-				cont = cont+1'b1;
-			end
-			else if (cont==4) begin
-				ps2d = 0;
-				cont = cont+1'b1;
-			end
-			else if (cont==5) begin
-				ps2d = 1;
-				cont = cont+1'b1;
-			end
-			else if (cont==6) begin
-				ps2d = 0;
-				cont = cont+1'b1;
-			end
-			else if (cont==7) begin
-				ps2d = 1;
-				cont = cont+1'b1;
-			end
-			else if (cont==8) begin
-				ps2d = 1;
-				cont = cont+1'b1;
-				
-			end
-			else if (cont==9) begin //parity
-				ps2d = 0;
-				cont = cont+1'b1;
-			end
-			else if(cont==10) begin //stop
-				ps2d = 1;
-				cont = 0;
-				$stop;
-			end		
-		end*/
+
