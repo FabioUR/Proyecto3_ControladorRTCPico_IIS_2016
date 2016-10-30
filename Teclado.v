@@ -22,9 +22,10 @@ module Teclado(
     input wire clk, reset,
     input wire ps2d, ps2c, rx_en,
     output reg rx_done_tick,
-    output wire [7:0] dout,
-	 output wire [7:0] letra,
-	 output reg llegoF
+    //output wire [7:0] dout,
+	 output reg [7:0] letra,
+	 //output wire llegoF,
+	 output reg new_data
    );
 
    // symbolic state declaration
@@ -34,12 +35,15 @@ module Teclado(
       load = 2'b10;
 	
 	//VARIABLE PARA ALMACENAR EN SALIDA
-	//wire [7:0] dout;
+	//reg rx_done_tick;
+	wire [7:0] dout;
+	wire llegoF;
 	
 	//DECLARACIÓN DE SEÑALES
 	reg [1:0] Est_act, Est_sig;
 	reg [3:0] cont = 0;
-	reg [7:0] letra1;
+	//reg [7:0] letra1;
+	reg llegoF1;
 
    // signal declaration
    reg [1:0] state_reg, state_next;
@@ -134,154 +138,97 @@ module Teclado(
 //registro llegoF0
 //	reg llegoF; //registro llego F0 ponerlo luego aqui, primero colocar como salida, para ver su comportamiento
 
-	always @(posedge clk, posedge reset)  
-		if(reset)
-			llegoF <= 0;
-		else
-			if(~llegoF)
-				llegoF <= (~rx_done_tick) ? 0:
-							(dout==8'hF0) ? 1'b1:0;
-			else
-				llegoF <= ~rx_done_tick ? 1'b1:0;
-	
-
-	always @*
-	begin 
-	letra1=0;
-		if (llegoF==1) begin
-			//letra1=dout;
-			case (dout)
-				8'h2B:
-					letra1=dout; //letra F
-				8'h33:
-					letra1=dout; //letra H
-				8'h2C:
-					letra1=dout; //letra T
-				8'h75:
-					letra1=dout; //flecha arriba
-				8'h74:
-					letra1=dout; //flecha derecha
-				8'h6B:
-					letra1=dout; //flecha izquierda
-				8'h72:
-					letra1=dout; //flecha abajo
-				8'h76: 
-					letra1=dout; //tecla ESC
-				//default:
-				//	letra1=0;
-			endcase
+always @ (posedge clk, posedge reset)
+	begin
+	if (reset) begin
+		llegoF1<=0;
+		letra<=0;
+	end
+	else 
+		if (rx_done_tick==1) begin
+			if (dout==8'hF0) begin
+				llegoF1 <= 1;
+				letra <= 0;
+				new_data<=0;
+			end
+			else begin
+				if (llegoF==1) begin
+					//letra1=dout;
+					case (dout)
+						8'h2B:
+							begin
+							letra<=dout; //letra F
+							new_data<=1;
+							end
+						8'h33:
+							begin
+							letra<=dout; //letra H
+							new_data<=1;
+							end
+						8'h2C:
+							begin
+							letra<=dout; //letra T
+							new_data<=1;
+							end
+						8'h75:
+							begin
+							letra<=dout; //flecha arriba
+							new_data<=1;
+							end
+						8'h74:
+							begin
+							letra<=dout; //flecha derecha
+							new_data<=1;
+							end
+						8'h6B:
+							begin
+							letra<=dout; //flecha izquierda
+							new_data<=1;
+							end
+						8'h72:
+							begin
+							letra<=dout; //flecha abajo
+							new_data<=1;
+							end
+						8'h76:
+							begin
+							letra<=dout; //tecla ESC
+							new_data<=1;
+							end
+						default:
+							begin
+							letra<=0;
+							llegoF1<=0;
+							end
+					endcase
+					llegoF1<=0;
+				end
+			end
 		end
-		else
-			//letra1=letra1;
-			cont=4'b0001;
+		else begin
+				letra <= letra;
+				//letra1=0; //se reinicia el valor de letra, si el tiempo de envio de dato es de 10ns
+				//letra1=0; //solo si el valor de la letra al enviarse, es por un tiempo de 1,2ms aprox
+		end
 	end
 	
 	//Establecer comparación cuando detec==0 y letra==(a la letra a usar), 
 	//para mandar como salida en otra variable a dicha letra
 	
-	assign letra = letra1; //letra es tipo wire [7:0]
+	//assign letra = letra1; //letra es tipo wire [7:0]
+	assign llegoF = llegoF1;
 	
 endmodule
 
 
-// CODIGO 1
-/*always @ (posedge clk, posedge reset)
-	begin
-	if (reset) begin
-		detec1<=0;
-		letra1<=0;
-	end
-	else 
-		if (rx_done_tick==1) begin
-			if (dout==8'hF0) begin
-				detec1 <= dout;
-			end
-			else begin
-				if (detec==8'hF0) begin
-					//letra1=dout;
-					case (dout)
-						8'h2B:
-							letra1<=dout; //letra F
-						8'h33:
-							letra1<=dout; //letra H
-						8'h2C:
-							letra1<=dout; //letra T
-						8'h75:
-							letra1<=dout; //flecha arriba
-						8'h74:
-							letra1<=dout; //flecha derecha
-						8'h6B:
-							letra1<=dout; //flecha izquierda
-						8'h72:
-							letra1<=dout; //flecha abajo
-						8'h76:
-							letra1<=dout; //tecla ESC
-						default:
-							begin
-							letra1<=0;
-							detec1<=0;
-							end
-					endcase
-					detec1<=0;
-				end
-				else
-					//letra1=0;
-					cont<=0;
-			end
-		end
+		/*always @(posedge clk, posedge reset)  
+		if(reset)
+			llegoF <= 0;
 		else begin
-				detec1 <= detec;
-				letra1 <= letra1;
-				//letra1=0; //se reinicia el valor de letra, si el tiempo de envio de dato es de 10ns
-				//letra1=0; //solo si el valor de la letra al enviarse, es por un tiempo de 1,2ms aprox
-		end
-	end*/
-
-
-//CODIGO 2
-/*always @*
-	begin 
+			if(~llegoF)
+				llegoF <= (~rx_done_tick)? 0:
+							((dout==8'hF0)? 1:0);
+			else
+				llegoF <= ~rx_done_tick? 1:0;
+		end*/
 	
-		if (rx_done_tick==1) begin
-			if (dout==8'hF0) begin
-				detec1 = dout;
-			end
-			else begin
-				if (detec==8'hF0) begin
-					//letra1=dout;
-					case (dout)
-						8'h2B:
-							letra1=dout; //letra F
-						8'h33:
-							letra1=dout; //letra H
-						8'h2C:
-							letra1=dout; //letra T
-						8'h75:
-							letra1=dout; //flecha arriba
-						8'h74:
-							letra1=dout; //flecha derecha
-						8'h6B:
-							letra1=dout; //flecha izquierda
-						8'h72:
-							letra1=dout; //flecha abajo
-						8'h76: 
-							letra1=dout; //tecla ESC
-						default:
-							begin
-							letra1=0;
-							detec1=0;
-							end
-					endcase
-					detec1=0;
-				end
-				else
-					//letra1=0;
-					cont=0;
-			end
-		end
-		else begin
-				detec1 = detec;
-				//letra1=0; //se reinicia el valor de letra, si el tiempo de envio de dato es de 10ns
-				//letra1=0; //solo si el valor de la letra al enviarse, es por un tiempo de 1,2ms aprox
-		end
-	end*/
