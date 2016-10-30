@@ -33,10 +33,9 @@ module Teclado_TB;
 
 	// Outputs
 	wire rx_done_tick;
-	//wire [7:0] dout;
-	//wire llegoF;
+	wire [7:0] dout;
 	wire [7:0] letra;
-	reg new_data;
+	wire new_data;
 
 	// Instantiate the Unit Under Test (UUT)
 	Teclado uut (
@@ -46,257 +45,73 @@ module Teclado_TB;
 		.ps2c(ps2c), 
 		.rx_en(rx_en), 
 		.rx_done_tick(rx_done_tick), 
-		//.dout (dout),
-		//.llegoF(llegoF),
+		.dout (dout),
 		.new_data(new_data),
 		.letra(letra)
 	);
-
-
-	always #5 clk=~clk; //100MHz
-	always #50000 ps2c=~ps2c; //10kHz
 	
-	reg [7:0] data; 
-	reg [3:0] cont;
 	
+	integer i,j;
+	reg [10:0] mensaje_ps2 [0:15];
+	reg [10:0] aux_ps2;
+	reg fin_ps2;
+
 	initial begin
 		// Initialize Inputs
-		clk = 1;
+		clk = 0;
 		reset = 1;
-		ps2d = 0;
-		ps2c = 1;
-		rx_en = 0; 
-
-		// Wait 100 ns for global reset to finish
-		#100;
-        
-		// Add stimulus here
+		ps2d = 1'b1;
+		ps2c = 1'b1;
+		rx_en = 1'b0;
+		mensaje_ps2[0] = {2'b11,8'hf0,1'b0}; //F0
+		mensaje_ps2[1] = {2'b11,8'h2B,1'b0}; //F
+		mensaje_ps2[2] = {2'b11,8'hf0,1'b0}; //F0
+		mensaje_ps2[3] = {2'b11,8'h33,1'b0}; //H
+		mensaje_ps2[4] = {2'b11,8'hf0,1'b0}; //F0
+		mensaje_ps2[5] = {2'b11,8'h2C,1'b0}; //T
+		mensaje_ps2[6] = {2'b11,8'hf0,1'b0}; //F0
+		mensaje_ps2[7] = {2'b11,8'h75,1'b0}; //flecha arrba
+		mensaje_ps2[8] = {2'b11,8'hf0,1'b0}; //F0
+		mensaje_ps2[9] = {2'b11,8'h74,1'b0}; //Flecha derecha
+		mensaje_ps2[10] = {2'b11,8'hf0,1'b0}; //F0
+		mensaje_ps2[11] = {2'b11,8'h6B,1'b0}; //flecha izquierda
+		mensaje_ps2[12] = {2'b11,8'hf0,1'b0}; //F0
+		mensaje_ps2[13] = {2'b11,8'h72,1'b0}; //Flecha abajo
+		mensaje_ps2[14] = {2'b11,8'hf0,1'b0}; //F0
+		mensaje_ps2[15] = {2'b11,8'h76,1'b0}; //ESC
+		aux_ps2 = 11'b0;
+		repeat(10)@(posedge clk);
 		reset = 0;
-		rx_en = 1;
-		cont = 0;
-		data = 8'b00101011; //la F en el teclado, dato 2B
-		
-		//meto F0
-		//@(posedge ps2c)
-		//ps2d=0; //start bit
-		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=0;//parity
-		
-		@(posedge ps2c)
-		ps2d=1; //stop
-		
-		@(posedge ps2c)
-		ps2d=0;//extra
-		
-		//METO 2B
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		@(posedge ps2c)
-		ps2d=0;//parity
-		
-		@(posedge ps2c)
-		ps2d=1; //stop
-		
-		@(posedge ps2c)
-		ps2d=0;//extra
-		
-		
-		
-		
-		//meto F0
-		//@(posedge ps2c)
-		//ps2d=0; //start bit
-		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=0;//parity
-		
-		@(posedge ps2c)
-		ps2d=1; //stop
-		
-		@(posedge ps2c)
-		ps2d=0;//extra
-		
-		//METO 74 
-		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		@(posedge ps2c)
-		ps2d=0;//parity
-		
-		@(posedge ps2c)
-		ps2d=1; //stop
-		
-		@(posedge ps2c)
-		ps2d=0;//extra
+		fin_ps2 = 0;
+	end
 
-//meto F0
-		//@(posedge ps2c)
-		//ps2d=0; //start bit
-		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=0;//parity
-		
-		@(posedge ps2c)
-		ps2d=1; //stop
-		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		//letra 76
-		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=1;
-		
-		@(posedge ps2c)
-		ps2d=0;
-		
-		@(posedge ps2c)
-		ps2d=0;//parity
-		
-		@(posedge ps2c)
-		ps2d=1; //stop
-		
-		@(posedge ps2c)
-		ps2d=0;//extra
-		
-		$stop;
-		
+	initial begin //ir recorriendo cada uno de los mensajes
+		@(negedge reset);
+		for(j=0;j<16;j=j+1)
+		begin
+			aux_ps2=mensaje_ps2[j];
+			repeat(5)@(posedge clk);
+			rx_en =1'b1;
+			for(i = 0; i<11; i=i+1) //recorre cada unos de los bit de cada dato
+			begin
+				ps2d = aux_ps2[i];//guardarlo en la variable ps2d, la cual va al dout del codigo del pong chu, que se usara para uardar el dato
+				@(posedge ps2c);
+			end
+			ps2d = 1; 
+			rx_en = 1'b0;
+		end
+		fin_ps2 = 1; //bandera usada para detener el funcionamiento del codigo el pong
+	$stop;
+	end
+      
+	initial forever begin
+		#5 clk = ~clk; //clock de la nexys 100MHz
+	end
+
+	initial begin
+		@(posedge rx_en);
+		while(rx_en)
+			#500 ps2c = ~ps2c; //clock del teclado, se ajusto a una frecuencia mayor, para menos tiempo de simulación
 	end
       
 endmodule

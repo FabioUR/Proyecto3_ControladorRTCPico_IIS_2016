@@ -22,7 +22,7 @@ module Teclado(
     input wire clk, reset,
     input wire ps2d, ps2c, rx_en,
     output reg rx_done_tick,
-    //output wire [7:0] dout,
+    output wire [7:0] dout,
 	 output reg [7:0] letra,
 	 //output wire llegoF,
 	 output reg new_data
@@ -36,7 +36,7 @@ module Teclado(
 	
 	//VARIABLE PARA ALMACENAR EN SALIDA
 	//reg rx_done_tick;
-	wire [7:0] dout;
+	//wire [7:0] dout;
 	wire llegoF;
 	
 	//DECLARACIÓN DE SEÑALES
@@ -140,12 +140,12 @@ module Teclado(
 
 always @ (posedge clk, posedge reset)
 	begin
-	if (reset) begin
-		llegoF1<=0;
-		letra<=0;
-	end
-	else 
-		if (rx_done_tick==1) begin
+		if (reset) begin
+			llegoF1<=0;
+			letra<=0;
+			new_data<=0;
+		end
+		else if (rx_done_tick==1) begin
 			if (dout==8'hF0) begin
 				llegoF1 <= 1;
 				letra <= 0;
@@ -153,62 +153,68 @@ always @ (posedge clk, posedge reset)
 			end
 			else begin
 				if (llegoF==1) begin
-					//letra1=dout;
+					new_data<=1;
 					case (dout)
 						8'h2B:
 							begin
 							letra<=dout; //letra F
-							new_data<=1;
+							
 							end
 						8'h33:
 							begin
 							letra<=dout; //letra H
-							new_data<=1;
+						
 							end
 						8'h2C:
 							begin
 							letra<=dout; //letra T
-							new_data<=1;
+							
 							end
 						8'h75:
 							begin
 							letra<=dout; //flecha arriba
-							new_data<=1;
+							
 							end
 						8'h74:
 							begin
 							letra<=dout; //flecha derecha
-							new_data<=1;
+							
 							end
 						8'h6B:
 							begin
 							letra<=dout; //flecha izquierda
-							new_data<=1;
+							
 							end
 						8'h72:
 							begin
 							letra<=dout; //flecha abajo
-							new_data<=1;
+							
 							end
 						8'h76:
 							begin
 							letra<=dout; //tecla ESC
-							new_data<=1;
+							
 							end
-						default:
-							begin
-							letra<=0;
-							llegoF1<=0;
-							end
+						//default:
+						//	begin
+						//	letra<=0;
+						//	llegoF1<=0;
+						//	end
 					endcase
 					llegoF1<=0;
-				end
-			end
-		end
+				end //end del if
+
+					
+				//if (letra!=0)
+				//	new_data<=1;
+				//else
+				//	new_data<=0;
+			end //end del else
+		end //end del else if
 		else begin
-				letra <= letra;
-				//letra1=0; //se reinicia el valor de letra, si el tiempo de envio de dato es de 10ns
-				//letra1=0; //solo si el valor de la letra al enviarse, es por un tiempo de 1,2ms aprox
+			letra <= letra;
+			//new_data<=0; //dura el new_data 10ns
+			
 		end
 	end
 	
