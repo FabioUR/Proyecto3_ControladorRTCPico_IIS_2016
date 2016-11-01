@@ -71,8 +71,8 @@
 ;		#set ioDev::page0::verilogTmplFile,				"tmpl.v"					; VHDL template file
 ;		#set ioDev::page0::verilogTargetFile,			"out.v"					; VHDL target file
 	
-;		#set ioDev::page0::hexEn,						true					; Enable/disable hex output
-;		#set ioDev::page0::hexTargetFile,				"out.hex"				; Hex target file
+		#set ioDev::page0::hexEn,						true					; Enable/disable hex output
+		#set ioDev::page0::hexTargetFile,				"instrucciones.hex"				; Hex target file
 	
 ;		#set ioDev::page0::memEn,						true					; Enable/disable mem output
 ;		#set ioDev::page0::memTargetFile,				"out.mem"				; Mem target file
@@ -179,6 +179,9 @@
 	
 	#equ alarma_on, 0x22
 	
+	; Teclado.
+	
+	#equ leido, 0x2f
 	
 	;------- Puertos de entrada -------
 	
@@ -199,22 +202,105 @@
 	
 	;Teclado.
 	
-	#equ new_data, 0x11
-	#equ data, 0x10
+	#equ new_data, 0x0C
+	#equ data, 0x0B
+
+main:
+	call inic_rtc
 	
+	lectura:
+	call leer_rtc
+	jump lectura
 	
-	; Direcciones para RTC.
+inic_rtc:
+
+	load s0, 0x00
+	; Inicializar datos de salida al RTC en 00H.
+	wrprt s0, st0_out
+	wrprt s0, st1_out
+	wrprt s0, seg_out
+	wrprt s0, min_out
+	wrprt s0, hora_out
+	wrprt s0, dia_out
+	wrprt s0, mes_out
+	wrprt s0, anio_out
+	wrprt s0, tseg_out
+	wrprt s0, tmin_out
+	wrprt s0, thora_out
+	; Inicializar banderas de control de FSM en 0.
+	wrprt s0, esc_fecha
+	wrprt s0, esc_hora
+	wrprt s0, esc_timer
+	wrprt s0, stop_timer
+	wrprt s0, stop_ring
+	wrprt s0, leido
+	wrprt s0, cursor_tim
+	wrprt s0, cursor_hora
+	wrprt s0, cursor_fecha
+	wrprt s0, alarma_on
+	; Inicializar valores de las direcciones para el RTC.	
+	load s1, 0x00
+	wrprt s1, dir_st0
+	load s1, 0x01
+	wrprt s1, dir_st1
+	load s1, 0x02
+	wrprt s1, dir_st2
+	load s1, 0x21
+	wrprt s1, dir_seg
+	load s1, 0x22
+	wrprt s1, dir_min
+	load s1, 0x23
+	wrprt s1, dir_hora
+	load s1, 0x24
+	wrprt s1, dir_dia
+	load s1, 0x25
+	wrprt s1, dir_mes
+	load s1, 0x26
+	wrprt s1, dir_anio
+	load s1, 0x41
+	wrprt s1, dir_tseg
+	load s1, 0x42
+	wrprt s1, dir_tmin
+	load s1, 0x43
+	wrprt s1, dir_thora
+	load s1, 0xF0
+	wrprt s1, dir_com_cyt
+	load s1, 0xF1
+	wrprt s1, dir_com_c
+	load s1, 0xF2
+	wrprt s1, dir_com_t
+	
+	; Comienza inicialización RTC.
+	
+	load s1, 0x10
+	wrprt s1, st2_out
+	load s2, 0x01
+	wrprt s2, inic
+	
+	esp_inic_1:
+	rdprt s0, ready
+	comp s0, 0x01
+	jump z, inic_esc_1
+	jump esp_inic_1
+	
+	inic_esc_1:
+	load s1, 0x00
+	wrprt s1, st2_out
 		
-	; Datos para RTC.
-	#EQU dat_esc_init, 0x10
-	#EQU dat_tim_en, 0x08
-	#EQU dat_tim_mask, 0x04
-	#EQU dat_59, 0x59
+	esp_inic_2:
+	rdprt s0, ready
+	comp s0, 0x01
+	jump z, inic_esc_2
+	jump esp_inic_2
+	
+	inic_esc_2:
+	load s2, 0x00
+	wrprt s2, inic
+ret
 
 leer_rtc:
-	
-	wrprt 0x01, leer ; activa máquina de lectura.
-	jump esp_leer
+	load s0, 0x01
+	wrprt s0, leer ; activa máquina de lectura.
 	
 	esp_leer:
 	rdprt s0, ready ; lee puerto ready.
@@ -222,8 +308,9 @@ leer_rtc:
 	jump z, lect_leer ; sí => pase a leer los datos del rtc.
 	jump esp_leer ; no => espere, vuelva a preguntar.
 	
-	lect_leer: 
-	wrprt 0x00, leer ; datos listos => desactivar leer.
+	lect_leer:
+	load s0, 0x00
+	wrprt s0, leer ; datos listos => desactivar leer.
 	; lectura de los datos del rtc.
 	rdprt s1, seg_in
 	rdprt s2, min_in
@@ -235,7 +322,6 @@ leer_rtc:
 	rdprt s8, tmin_in
 	rdprt s9, thora_in
 	; escritura de los datos del rtc en la vga.
-	;Hay que hacer la resta del timer.
 	wrprt s1, vga_seg
 	wrprt s2, vga_min
 	wrprt s3, vga_hora
@@ -245,8 +331,10 @@ leer_rtc:
 	wrprt s7, vga_tseg
 	wrprt s8, vga_tmin
 	wrprt s9, vga_thora
-	;ret ; regreso a main.	
-jump leer_rtc ; provisional
+	
+ret ; regreso a main.
+	
+;jump main ; provisional
 		
 	
 	;				int		enable
