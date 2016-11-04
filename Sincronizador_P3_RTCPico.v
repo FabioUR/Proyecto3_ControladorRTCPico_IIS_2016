@@ -1,9 +1,9 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
-// Engineer: Fabio Ureña Rojas
+// Engineer: 
 // 
-// Create Date:    17:06:54 10/17/2016 
+// Create Date:    00:46:51 11/04/2016 
 // Design Name: 
 // Module Name:    Sincronizador_P3_RTCPico 
 // Project Name: 
@@ -140,3 +140,4 @@ module Sincronizador_P3_RTCPico(
 	assign p_tick = pixel_tick;
 	
 endmodule
+

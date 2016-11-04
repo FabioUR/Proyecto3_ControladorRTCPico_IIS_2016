@@ -3,7 +3,7 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date:    00:37:44 10/25/2016 
+// Create Date:    00:37:58 11/04/2016 
 // Design Name: 
 // Module Name:    LECT_RTC 
 // Project Name: 
@@ -46,6 +46,7 @@ module LECT_RTC(
 	output reg dir_tmin,
 	output reg dir_thora,
 	
+	output wire	buffer_activo,
 	output reg ready
 	);
 	
@@ -93,7 +94,7 @@ module LECT_RTC(
 			est_act <= est0;
 		end else if (contador == 431) begin
 			est_act <= est2;
-		end else if (contador == 441) begin
+		end else if (contador == 461) begin
 			est_act <= est0;
 		end else begin
 			est_act <= est_sig;
@@ -469,4 +470,8 @@ module LECT_RTC(
 			ready = 0;
 		end
 	end
+	
+	assign buffer_activo = send_add || send_data;
+	
 endmodule
+

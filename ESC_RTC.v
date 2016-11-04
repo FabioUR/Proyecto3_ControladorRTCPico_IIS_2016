@@ -3,7 +3,7 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date:    00:37:33 10/25/2016 
+// Create Date:    00:37:20 11/04/2016 
 // Design Name: 
 // Module Name:    ESC_RTC 
 // Project Name: 
@@ -63,6 +63,8 @@ module ESC_RTC(
 	
 	output reg ready,
 	
+	output wire buffer_activo,
+	
 	output wire estado_esc
    );
 	
@@ -111,7 +113,7 @@ module ESC_RTC(
 			est_act <= est0;
 		end else if (contador == 259) begin
 			est_act <= est2;
-		end else if (contador == 269) begin
+		end else if (contador == 289) begin
 			est_act <= est0;
 		end else begin
 			est_act <= est_sig;
@@ -280,8 +282,8 @@ module ESC_RTC(
 					end else if (inic) begin
 						dir_com_c = 0;
 						dir_com_t = 0;
-						dir_st1 = 0;
-						dir_st2 = 1;
+						dir_st1 = 1;
+						dir_st2 = 0;
 					end else begin
 						dir_com_c = 0;
 						dir_com_t = 0;
@@ -320,8 +322,8 @@ module ESC_RTC(
 						dir_st2 = 0;
 					end else if (inic) begin
 						dir_com_c = 0;
-						dir_st1 = 0;
-						dir_st2 = 1;
+						dir_st1 = 1;
+						dir_st2 = 0;
 					end else begin
 						dir_com_c = 0;
 						dir_st1 = 0;
@@ -390,8 +392,8 @@ module ESC_RTC(
 						dir_tseg = 0;
 						dir_tmin = 0;
 						dir_thora = 0;
-						dir_st1 = 0;
-						dir_st2 = 1;
+						dir_st1 = 1;
+						dir_st2 = 0;
 					end else begin
 						dir_seg = 0;
 						dir_min = 0;
@@ -468,8 +470,8 @@ module ESC_RTC(
 						dir_tseg = 0;
 						dir_tmin = 0;
 						dir_thora = 0;
-						dir_st1 = 0;
-						dir_st2 = 1;
+						dir_st1 = 1;
+						dir_st2 = 0;
 					end else begin
 						dir_seg = 0;
 						dir_min = 0;
@@ -546,8 +548,8 @@ module ESC_RTC(
 						dir_tseg = 0;
 						dir_tmin = 0;
 						dir_thora = 0;
-						dir_st1 = 0;
-						dir_st2 = 1;
+						dir_st1 = 1;
+						dir_st2 = 0;
 					end else begin
 						dir_seg = 0;
 						dir_min = 0;
@@ -1051,6 +1053,8 @@ module ESC_RTC(
 		end
 	end
 	
+	assign buffer_activo = send_data || send_add;
 	assign estado_esc = (est_act == est1) ? 1'b1 : ((est_act == est2) ? 1'b1 : 1'b0);
 	
 endmodule
+

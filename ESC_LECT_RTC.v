@@ -3,7 +3,7 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date:    00:36:19 10/25/2016 
+// Create Date:    00:35:44 11/04/2016 
 // Design Name: 
 // Module Name:    ESC_LECT_RTC 
 // Project Name: 
@@ -73,12 +73,15 @@ module ESC_LECT_RTC(
 	output wire tmin_out,
 	output wire thora_out,
 	
+	output wire buf_act,
+	
 	output wire ready
    );
 	
 	wire a_d_e, cs_e, rd_e, wr_e,
 		dir_seg_e, dir_min_e, dir_hora_e, dir_dia_e, dir_mes_e, dir_anio_e, dir_tseg_e, dir_tmin_e, dir_thora_e,
 		ready_e;
+	wire buffer_activo_e;
 	wire estado_esc;
 	
 	ESC_RTC Escrituras(
@@ -123,12 +126,14 @@ module ESC_LECT_RTC(
 		.st2_out(st2_out),
 		
 		.ready(ready_e),
+		.buffer_activo(buffer_activo_e),
 		.estado_esc(estado_esc)
    );
 	
 	wire a_d_l, cs_l, rd_l, wr_l,
 		dir_seg_l, dir_min_l, dir_hora_l, dir_dia_l, dir_mes_l, dir_anio_l, dir_tseg_l, dir_tmin_l, dir_thora_l,
 		ready_l;
+	wire buffer_activo_l;
 	
 	LECT_RTC Lectura(
 		.clk(clk),
@@ -157,6 +162,7 @@ module ESC_LECT_RTC(
 		.dir_tseg(dir_tseg_l),
 		.dir_tmin(dir_tmin_l),
 		.dir_thora(dir_thora_l),
+		.buffer_activo(buffer_activo_l),
 		.ready(ready_l)
 	);
 
@@ -175,6 +181,8 @@ module ESC_LECT_RTC(
 	assign dir_tmin = (estado_esc) ? dir_tmin_e : dir_tmin_l;
 	assign dir_thora = (estado_esc) ? dir_thora_e : dir_thora_l;
 	
+	assign buf_act = (estado_esc) ? buffer_activo_e : buffer_activo_l;
 	assign ready = (estado_esc) ? ready_e : ready_l;
 
 endmodule
+
