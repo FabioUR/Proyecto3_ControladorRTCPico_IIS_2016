@@ -25,6 +25,8 @@
 module Teclado_TB;
 
 	// Inputs
+	//METER LUEGO EL new_data_pico
+	reg new_data_pico;
 	reg clk;
 	reg reset;
 	reg ps2d;
@@ -32,26 +34,30 @@ module Teclado_TB;
 	reg rx_en;
 
 	// Outputs
-	wire rx_done_tick;
-	wire [7:0] dout;
+	//wire rx_done_tick;
+	//wire [7:0] dout;
+	//wire llegoF;
 	wire [7:0] letra;
 	wire new_data;
 
 	// Instantiate the Unit Under Test (UUT)
 	Teclado uut (
+		.new_data_pico(new_data_pico),
 		.clk(clk), 
 		.reset(reset), 
 		.ps2d(ps2d), 
 		.ps2c(ps2c), 
 		.rx_en(rx_en), 
-		.rx_done_tick(rx_done_tick), 
-		.dout (dout),
+		//.rx_done_tick(rx_done_tick), 
+		//.dout (dout),
+		//.llegoF(llegoF),
 		.new_data(new_data),
 		.letra(letra)
 	);
 	
 	
 	integer i,j;
+	//reg enable_ps2c;
 	reg [10:0] mensaje_ps2 [0:15];
 	reg [10:0] aux_ps2;
 	reg fin_ps2;
@@ -60,6 +66,7 @@ module Teclado_TB;
 		// Initialize Inputs
 		clk = 0;
 		reset = 1;
+		new_data_pico = 0;
 		ps2d = 1'b1;
 		ps2c = 1'b1;
 		rx_en = 1'b0;
@@ -101,6 +108,14 @@ module Teclado_TB;
 			rx_en = 1'b0;
 		end
 		fin_ps2 = 1; //bandera usada para detener el funcionamiento del codigo el pong
+		if ((letra==8'h2B)||(letra==8'h33)||(letra==8'h2C)||(letra==8'h75)||(letra==8'h74)||(letra==8'h6B)||(letra==8'h72)||(letra==8'h76))
+			begin	
+				#3000;
+				new_data_pico = 1;
+			end
+		else
+				new_data_pico = 0;
+		#3000;
 	$stop;
 	end
       
@@ -115,5 +130,4 @@ module Teclado_TB;
 	end
       
 endmodule
-
 
