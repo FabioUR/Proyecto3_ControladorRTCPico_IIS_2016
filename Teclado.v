@@ -21,8 +21,8 @@
 module Teclado(
     input wire clk, reset, new_data_pico,
     input wire ps2d, ps2c, rx_en,
-    output reg rx_done_tick,
-    output wire [7:0] dout,
+    //output reg rx_done_tick,
+    //output wire [7:0] dout,
 	 output reg [7:0] letra,
 	 //output wire llegoF,
 	 output reg new_data
@@ -35,8 +35,8 @@ module Teclado(
       load = 2'b10;
 	
 	//VARIABLE PARA ALMACENAR EN SALIDA
-	//reg rx_done_tick;
-	//wire [7:0] dout;
+	reg rx_done_tick;
+	wire [7:0] dout;
 	wire llegoF;
 	
 	//DECLARACIÓN DE SEÑALES
