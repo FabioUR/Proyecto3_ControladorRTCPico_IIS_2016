@@ -20,40 +20,44 @@
 //////////////////////////////////////////////////////////////////////////////////
 module PICOBLAZE(
 	input wire clk,
-	input wire rst,
-	
-	input wire irq,
+	input wire reset,
+	/* RTC */
+	input wire irq, // No sé si se irá a ocupar.
 	inout wire [7:0] AD,
 	output wire a_d, cs, rd, wr,
 	
-	/*output wire [7:0] vga_seg_sal, vga_min_sal, vga_hora_sal, vga_dia_sal, vga_mes_sal, vga_anio_sal, vga_tseg_sal,
-		vga_tmin_sal, vga_thora_sal,
-	output wire [2:0] cursor_tim, cursor_hora, cursor_fecha,
-	output wire [7:0] dato_sal_pico,*/
+	//////////////////////
+	/*output wire esc_fecha, esc_hora, esc_timer, stop_ring, stop_timer, leer, inic, ready,
 	
-	//output wire stop_timer, alarma_on, leido, stop_ring, esc_timer, esc_hora, esc_fecha, leer, inic,
-	//output wire write_strobe, read_strobe,
-	//output wire [7:0] in_port, out_port
-	//output wire [26:0] en_sal,
-	//output wire [12:0] en_ent,
-	//output wire ready
+	output wire write_strobe, read_strobe,
 	
+	output wire [26:0] en_sal,
+	output wire [12:0] en_ent,*/
+	/////////////////////
+
+	/* VGA */
 	output wire h_sync, v_sync,
 	output wire [2:0] graph_rgb
 	);
 	
-	wire reset;
-	assign reset = !rst;
+	/*wire reset;
+	assign reset = !rst;*/
 	
-	wire buf_act;
-	wire ready;
+	wire buf_act; // Para buffer triestado.
 	
-	wire stop_ring, esc_timer, esc_hora, esc_fecha, leer, stop_timer, inic, alarma_on, leido;
+	wire ready; // Para el Pico.
+	
+	wire esc_fecha, esc_hora, esc_timer, stop_ring, inic, stop_timer, leer; // Para máquinas.
+	
+	/* Banderas de máquinas */
+	wire dir_com_cyt, dir_com_c, dir_com_t, dir_st0, sir_st1, dir_st2, dir_seg, dir_min, dir_hora, dir_dia, dir_mes,
+		dir_anio, dir_tseg, dir_tmin, dir_thora,
+		seg_in, min_in, hora_in, dia_in, mes_in, anio_in, tseg_in, tmin_in, thora_in,
+		st0_out, st1_out, st2_out, seg_out, min_out, hora_out, dia_out, mes_out, anio_out, tseg_out, tmin_out, thora_out;
 	
 	ESC_LECT_RTC Maquinas(
 		.clk(clk),
 		.reset(reset),
-		/* Banderas entrada */
 		.leer(leer),
 		.esc_hora(esc_hora),
 		.esc_fecha(esc_fecha),
@@ -61,12 +65,11 @@ module PICOBLAZE(
 		.stop_ring(stop_ring),
 		.inic(inic),
 		//.stop_timer(stop_timer),
-		/* ctrl RTC */
 		.a_d(a_d),
 		.cs(cs),
 		.rd(rd),
 		.wr(wr),
-		/* Banderas ctrl */
+		
 		.dir_com_cyt(dir_com_cyt),
 		.dir_com_c(dir_com_c),
 		.dir_com_t(dir_com_t),
@@ -112,19 +115,24 @@ module PICOBLAZE(
 		.ready(ready)
 	);
 	
-	wire [26:0] en_sal = {dir_st0, dir_st1, dir_st2, dir_seg, dir_min, dir_hora, dir_dia, dir_mes,
-		dir_anio, dir_tseg, dir_tmin, dir_thora, dir_com_cyt, dir_com_c, dir_com_t, st0_out, st1_out, st2_out, seg_out,
-		min_out, hora_out, dia_out, mes_out, anio_out, tseg_out, tmin_out, thora_out};
+	/* Enable para mux de selección del dato que va al RTC */
+	wire [26:0] en_sal = {dir_st0, dir_st1, dir_st2, dir_seg, dir_min, dir_hora, dir_dia, dir_mes, dir_anio, dir_tseg,
+		dir_tmin, dir_thora, dir_com_cyt, dir_com_c, dir_com_t,
+		st0_out, st1_out, st2_out, seg_out, min_out, hora_out, dia_out, mes_out, anio_out, tseg_out, tmin_out, thora_out};
 	
-	wire [7:0] vga_seg_sal, vga_min_sal, vga_hora_sal, vga_dia_sal, vga_mes_sal, vga_anio_sal, vga_tseg_sal, vga_tmin_sal,
-		vga_thora_sal, dir_st0_sal, dir_st1_sal, dir_st2_sal, dir_seg_sal, dir_min_sal, dir_hora_sal, dir_dia_sal,
-		dir_mes_sal, dir_anio_sal, dir_tseg_sal, dir_tmin_sal, dir_thora_sal, dir_com_cyt_sal,	dir_com_c_sal, dir_com_t_sal,
+	/* Datos para VGA y RTC */
+	wire [7:0] vga_seg_sal, vga_min_sal, vga_hora_sal, vga_dia_sal, vga_mes_sal, vga_anio_sal, vga_tseg_s,
+		vga_tmin_s, vga_thora_s,
+		dir_st0_sal, dir_st1_sal, dir_st2_sal, dir_seg_sal, dir_min_sal, dir_hora_sal, dir_dia_sal, dir_mes_sal,
+		dir_anio_sal, dir_tseg_sal, dir_tmin_sal, dir_thora_sal, dir_com_cyt_sal, dir_com_c_sal, dir_com_t_sal,
 		st0_sal, st1_sal, st2_sal, seg_sal, min_sal, hora_sal, dia_sal, mes_sal, anio_sal, tseg_s, tmin_s, thora_s;
 	
 	wire [2:0] cursor_tim, cursor_hora, cursor_fecha;
 	
-	wire	[7:0]		out_port;
+	wire alarma_on, leido;
 	
+	/* Desde el Pico */
+	wire	[7:0]		out_port;
 	wire	[7:0]		port_id;
 	wire			write_strobe;
 	
@@ -162,9 +170,9 @@ module PICOBLAZE(
 		.sal_1e(dir_st1_sal),
 		.sal_1f(dir_st0_sal),
 		
-		.sal_26(vga_thora_sal),
-		.sal_27(vga_tmin_sal),
-		.sal_28(vga_tseg_sal),
+		.sal_26(vga_thora_s),
+		.sal_27(vga_tmin_s),
+		.sal_28(vga_tseg_s),
 		.sal_29(vga_anio_sal),
 		.sal_2a(vga_mes_sal),
 		.sal_2b(vga_dia_sal),
@@ -187,7 +195,18 @@ module PICOBLAZE(
 		.sal_2f(leido)
 	);
 	
-	wire [7:0] tseg_sal, tmin_sal, thora_sal;
+	wire [7:0] vga_tseg_sal, vga_tmin_sal, vga_thora_sal;
+	
+	RESTA_TIMER Resta_VGA(
+		.hora_in(vga_thora_s),
+		.minuto_in(vga_tmin_s),
+		.segundo_in(vga_tseg_s),
+		.hora_out(vga_thora_sal),
+		.minuto_out(vga_tmin_sal),
+		.segundo_out(vga_tseg_sal)
+	);
+	
+	wire [7:0] tseg_sal, tmin_sal, thora_sal; // Datos del timer restados.
 	
 	RESTA_TIMER Resta_Escritura(
 		.hora_in(thora_s),
@@ -198,7 +217,7 @@ module PICOBLAZE(
 		.segundo_out(tseg_sal)
 	);
 	
-	wire [7:0] dato_sal_pico, dato_ent_pico;
+	wire [7:0] dato_ent_rtc, dato_sal_rtc; // Los datos que van al buffer.
 	
 	MUX_ESC MuxEscritura(
 		.sel(en_sal),
@@ -229,29 +248,31 @@ module PICOBLAZE(
 		.ch24(dir_st2_sal),
 		.ch25(dir_st1_sal),
 		.ch26(dir_st0_sal),
-		.sal(dato_sal_pico)
+		.sal(dato_ent_rtc)
 	);
 	
 	BUFFER_TRIESTADO Buffer(
 		.AD(AD),
-		.sig_out(dato_sal_pico),
-		.sig_in(dato_ent_pico),
+		.sig_out(dato_ent_rtc),
+		.sig_in(dato_sal_rtc),
 		.buffer_activo(buf_act)
 	);
 	
+	/* Enable para banco de registros de entrada para el Pico */
 	wire [12:0] en_ent = {1'b1, 1'b1, seg_in, min_in, hora_in, dia_in, mes_in,
 		anio_in, tseg_in, tmin_in, thora_in, 1'b1, 1'b1};
 	
+	/* Datos para el mux hacia el Pico */
 	wire [7:0] new_data_ent, data_ent, seg_ent, min_ent, hora_ent, dia_ent, mes_ent,
 		anio_ent, tseg_e, tmin_e, thora_e, ready_ent, irq_ent;
 	
-	wire [7:0] data = 8'hff; // PROVISIONAL.
+	wire [7:0] data = 8'h77; // PROVISIONAL.
 	wire new_data = 1'b0; // PROVISIONAL.
 	
 	BANCO_REG_ENTRADA Registros_Entrada(
 		.clk(clk),
 		.reset(reset),
-		.entrada(dato_ent_pico),
+		.entrada(/*dato_ent_rtc*/dato_sal_rtc),
 		.irq(irq),
 		.ready(ready),
 		.new_data(new_data),
@@ -272,7 +293,7 @@ module PICOBLAZE(
 		.sal_0c(new_data_ent)
 	);
 	
-	wire [7:0] tseg_ent, tmin_ent, thora_ent;
+	wire [7:0] tseg_ent, tmin_ent, thora_ent; // Datos del timer restados.
 	
 	RESTA_TIMER Resta_Lectura(
 		.hora_in(thora_e),
@@ -283,10 +304,13 @@ module PICOBLAZE(
 		.segundo_out(tseg_ent)
 	);
 	
-	wire	[7:0]		in_port;
+	wire	[7:0]		in_port; // Hacia el Pico.
+	
+	wire			read_strobe;
 	
 	MUX_ENT MuxEntradas(
 		.sel(port_id[3:0]),
+		.r_s(read_strobe),
 		.ch0(irq_ent),
 		.ch1(ready_ent),
 		.ch2(thora_ent),
@@ -309,9 +333,8 @@ module PICOBLAZE(
 	wire	[17:0]	instruction;
 	wire			bram_enable;
 
-	//wire			write_strobe;
 	wire			k_write_strobe;
-	wire			read_strobe;
+	
 	wire			interrupt;            //See note above
 	wire			interrupt_ack;
 	wire			kcpsm6_sleep;         //See note above

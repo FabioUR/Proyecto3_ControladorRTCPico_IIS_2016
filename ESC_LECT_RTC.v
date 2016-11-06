@@ -82,7 +82,7 @@ module ESC_LECT_RTC(
 		dir_seg_e, dir_min_e, dir_hora_e, dir_dia_e, dir_mes_e, dir_anio_e, dir_tseg_e, dir_tmin_e, dir_thora_e,
 		ready_e;
 	wire buffer_activo_e;
-	wire estado_esc;
+	wire estado_esc, est_esc_ready;
 	
 	ESC_RTC Escrituras(
 		.clk(clk),
@@ -127,7 +127,8 @@ module ESC_LECT_RTC(
 		
 		.ready(ready_e),
 		.buffer_activo(buffer_activo_e),
-		.estado_esc(estado_esc)
+		.estado_esc(estado_esc),
+		.est_esc_ready(est_esc_ready)
    );
 	
 	wire a_d_l, cs_l, rd_l, wr_l,
@@ -182,7 +183,7 @@ module ESC_LECT_RTC(
 	assign dir_thora = (estado_esc) ? dir_thora_e : dir_thora_l;
 	
 	assign buf_act = (estado_esc) ? buffer_activo_e : buffer_activo_l;
-	assign ready = (estado_esc) ? ready_e : ready_l;
+	assign ready = (est_esc_ready) ? ready_e : ready_l;
 
 endmodule
 

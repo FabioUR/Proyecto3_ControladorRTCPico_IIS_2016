@@ -65,7 +65,8 @@ module ESC_RTC(
 	
 	output wire buffer_activo,
 	
-	output wire estado_esc
+	output wire estado_esc,
+	output wire est_esc_ready
    );
 	
 	reg w_r;
@@ -111,6 +112,8 @@ module ESC_RTC(
 	always @(posedge clk, posedge reset) begin
 		if (reset) begin
 			est_act <= est0;
+		//end else if ((contador == 44) && inic) begin
+		//	est_act <= est2;
 		end else if (contador == 259) begin
 			est_act <= est2;
 		end else if (contador == 289) begin
@@ -133,10 +136,18 @@ module ESC_RTC(
 				end
 			end
 			est1: begin
-				est_sig = est1;
+				if (esc_fecha || esc_hora || esc_timer || inic || stop_ring/* | stop_timer*/) begin
+					est_sig = est1;
+				end else begin
+					est_sig = est0;
+				end
 			end
 			est2: begin
-				est_sig = est2;
+				if (esc_fecha || esc_hora || esc_timer || inic || stop_ring/* | stop_timer*/) begin
+					est_sig = est2;
+				end else begin
+					est_sig = est0;
+				end
 			end
 			default: est_sig = est0;
 		endcase
@@ -224,8 +235,8 @@ module ESC_RTC(
 						dir_st2 = 0;
 					end else if (esc_timer) begin
 						dir_com_c = 0;
-						dir_com_t = 0;
-						dir_st0 = 1;
+						dir_com_t = 1;
+						dir_st0 = 0;
 						dir_st1 = 0;
 						dir_st2 = 0;
 					end else if (stop_ring) begin
@@ -282,8 +293,8 @@ module ESC_RTC(
 					end else if (inic) begin
 						dir_com_c = 0;
 						dir_com_t = 0;
-						dir_st1 = 1;
-						dir_st2 = 0;
+						dir_st1 = 0;
+						dir_st2 = 1;
 					end else begin
 						dir_com_c = 0;
 						dir_com_t = 0;
@@ -313,8 +324,8 @@ module ESC_RTC(
 						dir_st1 = 0;
 						dir_st2 = 0;
 					end else if (esc_timer) begin
-						dir_com_c = 0;
-						dir_st1 = 1;
+						dir_com_c = 1;
+						dir_st1 = 0;
 						dir_st2 = 0;
 					end else if (stop_ring) begin
 						dir_com_c = 0;
@@ -322,8 +333,8 @@ module ESC_RTC(
 						dir_st2 = 0;
 					end else if (inic) begin
 						dir_com_c = 0;
-						dir_st1 = 1;
-						dir_st2 = 0;
+						dir_st1 = 0;
+						dir_st2 = 1;
 					end else begin
 						dir_com_c = 0;
 						dir_st1 = 0;
@@ -392,8 +403,8 @@ module ESC_RTC(
 						dir_tseg = 0;
 						dir_tmin = 0;
 						dir_thora = 0;
-						dir_st1 = 1;
-						dir_st2 = 0;
+						dir_st1 = 0;
+						dir_st2 = 1;
 					end else begin
 						dir_seg = 0;
 						dir_min = 0;
@@ -470,8 +481,8 @@ module ESC_RTC(
 						dir_tseg = 0;
 						dir_tmin = 0;
 						dir_thora = 0;
-						dir_st1 = 1;
-						dir_st2 = 0;
+						dir_st1 = 0;
+						dir_st2 = 1;
 					end else begin
 						dir_seg = 0;
 						dir_min = 0;
@@ -548,8 +559,8 @@ module ESC_RTC(
 						dir_tseg = 0;
 						dir_tmin = 0;
 						dir_thora = 0;
-						dir_st1 = 1;
-						dir_st2 = 0;
+						dir_st1 = 0;
+						dir_st2 = 1;
 					end else begin
 						dir_seg = 0;
 						dir_min = 0;
@@ -602,8 +613,8 @@ module ESC_RTC(
 						st2_out = 0;
 					end else if (esc_timer) begin
 						dir_com_c = 0;
-						dir_com_t = 0;
-						st0_out = 1;
+						dir_com_t = 1;
+						st0_out = 0;
 						st1_out = 0;
 						st2_out = 0;
 					end else if (stop_ring) begin
@@ -692,8 +703,8 @@ module ESC_RTC(
 						st2_out = 0;
 					end else if (esc_timer) begin
 						dir_com_c = 0;
-						dir_com_t = 0;
-						st1_out = 1;
+						dir_com_t = 1;
+						st1_out = 0;
 						st2_out = 0;						
 					end else if (stop_ring) begin
 						dir_com_c = 0;
@@ -1054,7 +1065,8 @@ module ESC_RTC(
 	end
 	
 	assign buffer_activo = send_data || send_add;
-	assign estado_esc = (est_act == est1) ? 1'b1 : ((est_act == est2) ? 1'b1 : 1'b0);
+	assign estado_esc = (est_act == est1) ? 1'b1 : 1'b0;
+	assign est_esc_ready = (est_act == est1) ? 1'b1 : ((est_act == est2) ? 1'b1 : 1'b0);
 	
 endmodule
 

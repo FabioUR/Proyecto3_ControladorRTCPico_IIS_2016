@@ -114,10 +114,18 @@ module LECT_RTC(
 				end
 			end
 			est1: begin
-				est_sig = est1;
+				if (leer) begin
+					est_sig = est1;
+				end else begin
+					est_sig = est0;
+				end
 			end
 			est2: begin
-				est_sig = est2;
+				if (leer) begin
+					est_sig = est2;
+				end else begin
+					est_sig = est0;
+				end
 			end
 			default: est_sig = est0;
 		endcase
@@ -471,7 +479,7 @@ module LECT_RTC(
 		end
 	end
 	
-	assign buffer_activo = send_add || send_data;
+	assign buffer_activo = send_add;
 	
 endmodule
 
