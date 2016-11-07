@@ -37,7 +37,7 @@ module Teclado(
 	//VARIABLE PARA ALMACENAR EN SALIDA
 	reg rx_done_tick;
 	wire [7:0] dout;
-	wire llegoF;
+	reg llegoF;
 	
 	//DECLARACIÓN DE SEÑALES
 	reg [1:0] Est_act, Est_sig;
@@ -141,11 +141,21 @@ module Teclado(
 //			new_data = new_data;
 //	end
 
+always @(posedge clk, posedge reset)  
+		if(reset)
+			llegoF <= 0;
+		else begin
+			if(~llegoF)
+				llegoF <= (~rx_done_tick)? 0:
+							((dout==8'hF0)? 1:0);
+			else
+				llegoF <= ~rx_done_tick? 1:0;
+		end
+
 //selector de letra leyendola del codigo anterior
 	always @ (posedge clk, posedge reset)
 	begin
 		if (reset) begin
-			llegoF1<=0;
 			letra<=0;
 			new_data<=0;
 		end
@@ -153,7 +163,6 @@ module Teclado(
 			new_data<=0;
 		else if (rx_done_tick==1) begin
 			if (dout==8'hF0) begin
-				llegoF1 <= 1;
 				letra <= 0;
 				new_data<=0;
 			end
@@ -228,7 +237,7 @@ module Teclado(
 	//para mandar como salida en otra variable a dicha letra
 	
 	//assign letra = letra1; //letra es tipo wire [7:0]
-	assign llegoF = llegoF1;
+	//assign llegoF = llegoF1;
 	
 endmodule
 
