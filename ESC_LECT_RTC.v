@@ -27,7 +27,7 @@ module ESC_LECT_RTC(
 	input wire esc_timer,
 	input wire stop_ring,
 	input wire inic,
-	//input wire stop_timer
+	input wire act_timer,
 	
 	output wire a_d, cs, rd, wr, // Señales de ctrl RTC.
 	
@@ -92,7 +92,7 @@ module ESC_LECT_RTC(
 		.esc_timer(esc_timer),
 		.stop_ring(stop_ring),
 		.inic(inic),
-		//.stop_timer(stop_timer),
+		.act_timer(act_timer),
 		.a_d(a_d_e),
 		.cs(cs_e),
 		.rd(rd_e),

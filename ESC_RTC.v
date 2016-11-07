@@ -26,7 +26,7 @@ module ESC_RTC(
 	input wire esc_timer,
 	input wire stop_ring,
 	input wire inic,
-	//input wire stop_timer,
+	input wire act_timer,
 	
 	output wire a_d, cs, rd, wr, // Señales de ctrl RTC.
 
@@ -112,11 +112,9 @@ module ESC_RTC(
 	always @(posedge clk, posedge reset) begin
 		if (reset) begin
 			est_act <= est0;
-		//end else if ((contador == 44) && inic) begin
-		//	est_act <= est2;
-		end else if (contador == 259) begin
+		end else if (contador == 173) begin
 			est_act <= est2;
-		end else if (contador == 289) begin
+		end else if (contador == 203) begin
 			est_act <= est0;
 		end else begin
 			est_act <= est_sig;
@@ -129,21 +127,21 @@ module ESC_RTC(
 		est_sig = est0;
 		case(est_act)
 			est0: begin
-				if (esc_fecha || esc_hora || esc_timer || inic || stop_ring/* | stop_timer*/) begin
+				if (esc_fecha || esc_hora || esc_timer || inic || stop_ring || act_timer/* | stop_timer*/) begin
 					est_sig = est1;
 				end else begin
 					est_sig = est0;
 				end
 			end
 			est1: begin
-				if (esc_fecha || esc_hora || esc_timer || inic || stop_ring/* | stop_timer*/) begin
+				if (esc_fecha || esc_hora || esc_timer || inic || stop_ring || act_timer/* | stop_timer*/) begin
 					est_sig = est1;
 				end else begin
 					est_sig = est0;
 				end
 			end
 			est2: begin
-				if (esc_fecha || esc_hora || esc_timer || inic || stop_ring/* | stop_timer*/) begin
+				if (esc_fecha || esc_hora || esc_timer || inic || stop_ring || act_timer/* | stop_timer*/) begin
 					est_sig = est2;
 				end else begin
 					est_sig = est0;
@@ -211,7 +209,7 @@ module ESC_RTC(
 				tseg_out = 0;
 				tmin_out = 0;
 				thora_out = 0;
-				if (contador > 215) begin
+				/*if (contador > 215) begin
 					dir_seg = 0;
 					dir_min = 0;
 					dir_hora = 0;
@@ -301,11 +299,7 @@ module ESC_RTC(
 						dir_st1 = 0;
 						dir_st2 = 0;
 					end
-				end else if (contador > 129) begin
-					dir_com_t = 0;
-					
-					dir_st0 = 0;
-					
+				end else */if (contador > 129) begin
 					dir_seg = 0;
 					dir_min = 0;
 					dir_hora = 0;
@@ -317,26 +311,44 @@ module ESC_RTC(
 					dir_thora = 0;
 					if (esc_hora) begin
 						dir_com_c = 1;
+						dir_com_t = 0;
+						dir_st0 = 0;
 						dir_st1 = 0;
 						dir_st2 = 0;
 					end else if (esc_fecha) begin
 						dir_com_c = 1;
+						dir_com_t = 0;
+						dir_st0 = 0;
 						dir_st1 = 0;
 						dir_st2 = 0;
 					end else if (esc_timer) begin
-						dir_com_c = 1;
+						dir_com_c = 0;
+						dir_com_t = 1;
+						dir_st0 = 0;
 						dir_st1 = 0;
 						dir_st2 = 0;
 					end else if (stop_ring) begin
 						dir_com_c = 0;
+						dir_com_t = 0;
+						dir_st0 = 0;
 						dir_st1 = 1;
 						dir_st2 = 0;
 					end else if (inic) begin
 						dir_com_c = 0;
+						dir_com_t = 0;
+						dir_st0 = 0;
 						dir_st1 = 0;
 						dir_st2 = 1;
+					end else if (act_timer) begin
+						dir_com_c = 0;
+						dir_com_t = 0;
+						dir_st0 = 1;
+						dir_st1 = 0;
+						dir_st2 = 0;
 					end else begin
 						dir_com_c = 0;
+						dir_com_t = 0;
+						dir_st0 = 0;
 						dir_st1 = 0;
 						dir_st2 = 0;
 					end
@@ -405,6 +417,18 @@ module ESC_RTC(
 						dir_thora = 0;
 						dir_st1 = 0;
 						dir_st2 = 1;
+					end else if (act_timer) begin
+						dir_seg = 0;
+						dir_min = 0;
+						dir_hora = 0;
+						dir_dia = 0;
+						dir_mes = 0;
+						dir_anio = 0;
+						dir_tseg = 0;
+						dir_tmin = 0;
+						dir_thora = 0;
+						dir_st1 = 1;
+						dir_st2 = 0;
 					end else begin
 						dir_seg = 0;
 						dir_min = 0;
@@ -483,6 +507,18 @@ module ESC_RTC(
 						dir_thora = 0;
 						dir_st1 = 0;
 						dir_st2 = 1;
+					end else if (act_timer) begin
+						dir_seg = 0;
+						dir_min = 0;
+						dir_hora = 0;
+						dir_dia = 0;
+						dir_mes = 0;
+						dir_anio = 0;
+						dir_tseg = 0;
+						dir_tmin = 0;
+						dir_thora = 0;
+						dir_st1 = 1;
+						dir_st2 = 0;
 					end else begin
 						dir_seg = 0;
 						dir_min = 0;
@@ -561,6 +597,18 @@ module ESC_RTC(
 						dir_thora = 0;
 						dir_st1 = 0;
 						dir_st2 = 1;
+					end else if (act_timer) begin
+						dir_seg = 0;
+						dir_min = 0;
+						dir_hora = 0;
+						dir_dia = 0;
+						dir_mes = 0;
+						dir_anio = 0;
+						dir_tseg = 0;
+						dir_tmin = 0;
+						dir_thora = 0;
+						dir_st1 = 1;
+						dir_st2 = 0;
 					end else begin
 						dir_seg = 0;
 						dir_min = 0;
@@ -589,7 +637,7 @@ module ESC_RTC(
 				dir_thora = 0;
 				dir_tmin = 0;
 				dir_tseg = 0;
-				if (contador > 215) begin
+				/*if (contador > 215) begin
 					seg_out = 0;
 					min_out = 0;
 					hora_out = 0;
@@ -679,9 +727,7 @@ module ESC_RTC(
 						st1_out = 0;
 						st2_out = 0;
 					end
-				end else if (contador > 129) begin
-					st0_out = 0;
-					
+				end else */if (contador > 129) begin
 					seg_out = 0;
 					min_out = 0;
 					hora_out = 0;
@@ -694,31 +740,43 @@ module ESC_RTC(
 					if (esc_hora) begin
 						dir_com_c = 1;
 						dir_com_t = 0;
+						st0_out = 0;
 						st1_out = 0;
 						st2_out = 0;
 					end else if (esc_fecha) begin
 						dir_com_c = 1;
 						dir_com_t = 0;
+						st0_out = 0;
 						st1_out = 0;
 						st2_out = 0;
 					end else if (esc_timer) begin
 						dir_com_c = 0;
 						dir_com_t = 1;
+						st0_out = 0;
 						st1_out = 0;
 						st2_out = 0;						
 					end else if (stop_ring) begin
 						dir_com_c = 0;
 						dir_com_t = 0;
+						st0_out = 0;
 						st1_out = 1;
 						st2_out = 0;
 					end else if (inic) begin
 						dir_com_c = 0;
 						dir_com_t = 0;
+						st0_out = 0;
 						st1_out = 0;
 						st2_out = 1;
+					end else if (act_timer) begin
+						dir_com_c = 0;
+						dir_com_t = 0;
+						st0_out = 1;
+						st1_out = 0;
+						st2_out = 0;	
 					end else begin
 						dir_com_c = 0;
 						dir_com_t = 0;
+						st0_out = 0;
 						st1_out = 0;
 						st2_out = 0;
 					end
@@ -787,6 +845,18 @@ module ESC_RTC(
 						thora_out = 0;
 						st1_out = 0;
 						st2_out = 1;
+					end else if (act_timer) begin
+						seg_out = 0;
+						min_out = 0;
+						hora_out = 0;
+						dia_out = 0;
+						mes_out = 0;
+						anio_out = 0;
+						tseg_out = 0;
+						tmin_out = 0;
+						thora_out = 0;
+						st1_out = 1;
+						st2_out = 0;
 					end else begin
 						seg_out = 0;
 						min_out = 0;
@@ -865,6 +935,18 @@ module ESC_RTC(
 						thora_out = 0;
 						st1_out = 0;
 						st2_out = 1;
+					end else if (act_timer) begin
+						seg_out = 0;
+						min_out = 0;
+						hora_out = 0;
+						dia_out = 0;
+						mes_out = 0;
+						anio_out = 0;
+						tseg_out = 0;
+						tmin_out = 0;
+						thora_out = 0;
+						st1_out = 1;
+						st2_out = 0;
 					end else begin
 						seg_out = 0;
 						min_out = 0;
@@ -943,6 +1025,18 @@ module ESC_RTC(
 						thora_out = 0;
 						st1_out = 0;
 						st2_out = 1;
+					end else if (act_timer) begin
+						seg_out = 0;
+						min_out = 0;
+						hora_out = 0;
+						dia_out = 0;
+						mes_out = 0;
+						anio_out = 0;
+						tseg_out = 0;
+						tmin_out = 0;
+						thora_out = 0;
+						st1_out = 1;
+						st2_out = 0;
 					end else begin
 						seg_out = 0;
 						min_out = 0;

@@ -252,4 +252,3 @@ endmodule
 			else
 				llegoF <= ~rx_done_tick? 1:0;
 		end*/
-	
