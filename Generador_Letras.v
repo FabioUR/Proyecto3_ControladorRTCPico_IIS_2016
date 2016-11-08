@@ -298,7 +298,7 @@ module Generador_Letras(
 	//Multiplexar las direcciones del font ROM con salida RBG
 	always @(posedge CLK) begin
 		
-		//graph_rgb = 12'h000;
+		graph_rgb = 12'h000;
 		if (FECHA_on) //palabra FECHA
 		begin
 			char_addr = char_addr_FECHA;
@@ -424,8 +424,7 @@ module Generador_Letras(
 		end
 		
 		else begin
-			//graph_rgb = 12'h000; //negro
-			graph_rgb = 12'h777; //gris
+			graph_rgb = 12'h000; //negro
 		end
 	end
 	

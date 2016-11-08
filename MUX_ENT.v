@@ -21,7 +21,7 @@
 module MUX_ENT(
 	input wire [3:0] sel,
 	input wire r_s,
-	input wire [7:0] ch0, ch1, ch2, ch3, ch4, ch5, ch6, ch7, ch8, ch9, ch10, ch11, ch12,
+	input wire [7:0] ch0, ch1, ch2, ch3, ch4, ch5, ch6, ch7, ch8, ch9, ch10, ch11, ch12, ch13,
 	output reg [7:0] sal
    );
 	
@@ -41,6 +41,7 @@ module MUX_ENT(
 				4'ha: sal = ch10;
 				4'hb: sal = ch11;
 				4'hc: sal = ch12;
+				4'hd: sal = ch13;
 				default: sal = 8'hxx;
 			endcase 
 		end else begin

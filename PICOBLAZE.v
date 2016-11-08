@@ -41,7 +41,7 @@ module PICOBLAZE(
 	
 	/* VGA */
 	output wire h_sync, v_sync,
-	output wire [2:0] graph_rgb
+	output wire [11:0] graph_rgb
 	);
 	
 	wire reset;
@@ -147,6 +147,11 @@ module PICOBLAZE(
 		dir_anio_sal, dir_tseg_sal, dir_tmin_sal, dir_thora_sal, dir_com_cyt_sal, dir_com_c_sal, dir_com_t_sal,
 		st0_sal, st1_sal, st2_sal, seg_sal, min_sal, hora_sal, dia_sal, mes_sal, anio_sal, tseg_s, tmin_s, thora_s;
 	
+	/* Datos para Modif_Datos */
+	wire [7:0] dato_a_modif;
+	wire [4:0] tipo;
+	wire s_r;
+	
 	wire [2:0] cursor_tim, cursor_hora, cursor_fecha;
 	
 	wire alarma_on;
@@ -199,6 +204,9 @@ module PICOBLAZE(
 		.sal_2c(vga_hora_sal),
 		.sal_2d(vga_min_sal),
 		.sal_2e(vga_seg_sal),
+		.sal_30(dato_a_modif),
+		
+		.sal_31(tipo),
 		
 		.sal_23(cursor_fecha),
 		.sal_24(cursor_hora),
@@ -212,7 +220,9 @@ module PICOBLAZE(
 		.sal_20(act_timer),
 		.sal_21(inic),
 		.sal_22(alarma_on),
-		.sal_2f(leido)
+		.sal_2f(leido),
+		.sal_32(s_r)
+		
 	);
 	
 	/*wire [7:0] vga_tseg_sal, vga_tmin_sal, vga_thora_sal;
@@ -278,12 +288,21 @@ module PICOBLAZE(
 		.buffer_activo(buf_act)
 	);
 	
+	wire [7:0] dato_modificado;
+	
+	MODIF_DATOS Mod_Datos(
+		.dato_e(dato_a_modif),
+		.tipo(tipo),
+		.s_r(s_r),
+		.dato_s(dato_modificado)
+	);
+		
 	/* Enable para banco de registros de entrada para el Pico */
-	wire [12:0] en_ent = {1'b1, 1'b1, seg_in, min_in, hora_in, dia_in, mes_in,
+	wire [13:0] en_ent = {1'b1, 1'b1, 1'b1, seg_in, min_in, hora_in, dia_in, mes_in,
 		anio_in, tseg_in, tmin_in, thora_in, 1'b1, 1'b1};
 	
 	/* Datos para el mux hacia el Pico */
-	wire [7:0] new_data_ent, data_ent, seg_ent, min_ent, hora_ent, dia_ent, mes_ent,
+	wire [7:0] dato_mod_ent, new_data_ent, data_ent, seg_ent, min_ent, hora_ent, dia_ent, mes_ent,
 		anio_ent, tseg_e, tmin_e, thora_e, ready_ent, irq_ent;
 	
 	BANCO_REG_ENTRADA Registros_Entrada(
@@ -294,6 +313,7 @@ module PICOBLAZE(
 		.ready(ready),
 		.new_data(new_data),
 		.data_teclado(data),
+		.dato_cambio(dato_modificado),
 		.en(en_ent),
 		.sal_00(irq_ent),
 		.sal_01(ready_ent),
@@ -307,7 +327,8 @@ module PICOBLAZE(
 		.sal_09(min_ent),
 		.sal_0a(seg_ent),
 		.sal_0b(data_ent),
-		.sal_0c(new_data_ent)
+		.sal_0c(new_data_ent),
+		.sal_0d(dato_mod_ent)
 	);
 	
 	wire [7:0] tseg_ent, tmin_ent, thora_ent; // Datos del timer restados.
@@ -341,6 +362,7 @@ module PICOBLAZE(
 		.ch10(seg_ent),
 		.ch11(data_ent),
 		.ch12(new_data_ent),
+		.ch13(dato_mod_ent),
 		.sal(in_port)
 	);
 	
@@ -404,7 +426,7 @@ module PICOBLAZE(
 	wire clk_gen;
 	
 	wire [8:0] cursor = {cursor_fecha, cursor_hora, cursor_tim};
-	
+		
 	Sincronizador_P3_RTCPico Sinc(
 		.CLK(clk),
 		.RESET(reset),
@@ -419,7 +441,7 @@ module PICOBLAZE(
 		.CLK(clk_gen),
 		.pix_x(X),
 		.pix_y(Y),
-		.Alarma_on(~irq),
+		.Alarma_on(alarma_on),
 		.graph_rgb(graph_rgb),
 		.bandera_cursor(cursor),
 		.digit_DD(vga_dia_sal),

@@ -24,9 +24,10 @@ module BANCO_REG_ENTRADA(
 	input wire [7:0] entrada,
 	input wire irq, ready, new_data,
 	input wire [7:0] data_teclado,
-	input wire [12:0] en,
+	input wire [7:0] dato_cambio,
+	input wire [13:0] en,
 	
-	output wire [7:0] sal_00, sal_01, sal_02, sal_03, sal_04, sal_05, sal_06, sal_07, sal_08, sal_09, sal_0a, sal_0b, sal_0c
+	output wire [7:0] sal_00, sal_01, sal_02, sal_03, sal_04, sal_05, sal_06, sal_07, sal_08, sal_09, sal_0a, sal_0b, sal_0c, sal_0d
    );
 	
 	wire [7:0] irq_byte, ready_byte, new_data_byte;
@@ -136,6 +137,14 @@ module BANCO_REG_ENTRADA(
 		.enable(en[12]),
 		.data_in(new_data_byte),
 		.data_out(sal_0c)
+	);
+	
+	REGISTRO Reg0d(
+		.clk(clk),
+		.reset(reset),
+		.enable(en[13]),
+		.data_in(dato_cambio),
+		.data_out(sal_0d)
 	);
 
 endmodule

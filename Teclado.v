@@ -170,46 +170,33 @@ always @(posedge clk, posedge reset)
 				if (llegoF==1) begin
 					new_data<=1;
 					case (dout)
-						8'h2B:
-							begin
+						8'h2B: begin
 							letra<=dout; //letra F
-							
-							end
-						8'h33:
-							begin
+						end
+						8'h33: begin
 							letra<=dout; //letra H
-						
-							end
-						8'h2C:
-							begin
+						end
+						8'h2C: begin
 							letra<=dout; //letra T
-							
-							end
-						8'h75:
-							begin
+						end
+						8'h75: begin
 							letra<=dout; //flecha arriba
-							
-							end
-						8'h74:
-							begin
+						end
+						8'h74: begin
 							letra<=dout; //flecha derecha
-							
-							end
-						8'h6B:
-							begin
+						end
+						8'h6B: begin
 							letra<=dout; //flecha izquierda
-							
-							end
-						8'h72:
-							begin
+						end
+						8'h72: begin
 							letra<=dout; //flecha abajo
-							
-							end
-						8'h76:
-							begin
+						end
+						8'h76: begin
 							letra<=dout; //tecla ESC
-							
-							end
+						end
+						8'h5A: begin
+							letra<=dout; //enter
+						end
 						//default:
 						//	begin
 						//	letra<=0;
