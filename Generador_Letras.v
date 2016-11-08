@@ -318,9 +318,9 @@ module Generador_Letras(
 				if (font_bit) begin //CAMBIAR COORDENADAS Y COLOR
 					if ((pix_y[9:5]<=3) && (pix_y[9:5]>=2) &&(pix_x[9:6]>=1)&&(pix_x[9:6]<2)&&(bandera_cursor[8]==1)) //DIA 
 						graph_rgb = 12'hFE0;//Hace un cursor AMARILLO
-					else if ((pix_y[9:5]<=3) && (pix_y[9:5]>=2) &&(pix_x[9:6]>=2)&&(pix_x[9:6]<3)&&(bandera_cursor[7]==1))   //MES  
+					else if ((pix_y[9:5]<=3) && (pix_y[9:5]>=2) &&(pix_x[9:6]>=3)&&(pix_x[9:6]<4)&&(bandera_cursor[7]==1))   //MES  
 						graph_rgb = 12'hFE0;//Hace un cursor AMARILLO
-					else if ((pix_y[9:5]<=3) && (pix_y[9:5]>=2) &&(pix_x[9:6]>=3)&&(pix_x[9:6]<4)&&(bandera_cursor[6]==1))  //AÑO  
+					else if ((pix_y[9:5]<=3) && (pix_y[9:5]>=2) &&(pix_x[9:6]>=5)&&(pix_x[9:6]<6)&&(bandera_cursor[6]==1))  //AÑO  
 						graph_rgb = 12'hFE0;//Hace un cursor AMARILLO
 					else
 						graph_rgb = 12'hFFF; //blanco
@@ -344,11 +344,11 @@ module Generador_Letras(
 			bit_addr = bit_addr_NumHORA;
 			
 				if (font_bit) begin //CAMBIAR COORDENADAS Y COLOR
-					if ((pix_y[9:5]>=6)&&(pix_y[9:4]<=7)&&(pix_x[9:6]>=1)&&(pix_x[9:6]<2)&&(bandera_cursor[5]==1)) //HORA QUITE UN = EN SEGUNDO X
+					if ((pix_y[9:5]>=6)&&(pix_y[9:5]<=7)&&(pix_x[9:6]>=1)&&(pix_x[9:6]<2)&&(bandera_cursor[5]==1)) //HORA QUITE UN = EN SEGUNDO X
 						graph_rgb = 12'hFE0;//Hace un cursor AMARILLO
-					else if ((pix_y[9:5]>=6)&&(pix_y[9:4]<=7)&&(pix_x[9:6]>=2)&&(pix_x[9:6]<3)&&(bandera_cursor[4]==1))   //MINUTO  QUITE UN = EN SEGUNDO X
+					else if ((pix_y[9:5]>=6)&&(pix_y[9:5]<=7)&&(pix_x[9:6]>=3)&&(pix_x[9:6]<4)&&(bandera_cursor[4]==1))   //MINUTO  QUITE UN = EN SEGUNDO X
 						graph_rgb = 12'hFE0;//Hace un cursor AMARILLO
-					else if ((pix_y[9:5]>=6)&&(pix_y[9:4]<=7)&&(pix_x[9:6]>=3)&&(pix_x[9:6]<4)&&(bandera_cursor[3]==1))  //SEGUNDO  QUITE UN = EN SEGUNDO X
+					else if ((pix_y[9:5]>=6)&&(pix_y[9:5]<=7)&&(pix_x[9:6]>=5)&&(pix_x[9:6]<6)&&(bandera_cursor[3]==1))  //SEGUNDO  QUITE UN = EN SEGUNDO X
 						graph_rgb = 12'hFE0;//Hace un cursor AMARILLO
 					else
 						graph_rgb = 12'hFFF; //blanco
@@ -382,11 +382,11 @@ module Generador_Letras(
 			bit_addr = bit_addr_NumTIMER;
 			
 				if (font_bit) begin //CAMBIAR COORDENADAS Y COLOR
-					if ((pix_y[9:5]>=10)&&(pix_y[9:4]<=11)&&(pix_x[9:6]>=1)&&(pix_x[9:6]<2)&&(bandera_cursor[2]==1)) //HORA QUITE UN = EN SEGUNDO X
+					if ((pix_y[9:5]>=10)&&(pix_y[9:5]<=11)&&(pix_x[9:6]>=1)&&(pix_x[9:6]<2)&&(bandera_cursor[2]==1)) //HORA QUITE UN = EN SEGUNDO X
 						graph_rgb = 12'hFE0;//Hace un cursor AMARILLO
-					else if ((pix_y[9:5]>=10)&&(pix_y[9:4]<=11)&&(pix_x[9:6]>=2)&&(pix_x[9:6]<3)&&(bandera_cursor[1]==1))   //MINUTO  QUITE UN = EN SEGUNDO X
+					else if ((pix_y[9:5]>=10)&&(pix_y[9:5]<=11)&&(pix_x[9:6]>=3)&&(pix_x[9:6]<4)&&(bandera_cursor[1]==1))   //MINUTO  QUITE UN = EN SEGUNDO X
 						graph_rgb = 12'hFE0;//Hace un cursor AMARILLO
-					else if ((pix_y[9:5]>=10)&&(pix_y[9:4]<=11)&&(pix_x[9:6]>=3)&&(pix_x[9:6]<4)&&(bandera_cursor[0]==1))  //SEGUNDO  QUITE UN = EN SEGUNDO X
+					else if ((pix_y[9:5]>=10)&&(pix_y[9:5]<=11)&&(pix_x[9:6]>=5)&&(pix_x[9:6]<6)&&(bandera_cursor[0]==1))  //SEGUNDO  QUITE UN = EN SEGUNDO X
 						graph_rgb = 12'hFE0;//Hace un cursor AMARILLO			
 					else
 						graph_rgb = 12'hFFF;
