@@ -126,7 +126,7 @@
 	#equ esc_fecha, 0x03
 	#equ esc_hora, 0x02
 	#equ esc_timer, 0x01
-	#equ stop_timer, 0x20
+	#equ act_timer, 0x20
 	#equ stop_ring, 0x00
 	
 	#equ dir_com_cyt, 0x13	
@@ -183,6 +183,12 @@
 	
 	#equ leido, 0x2f
 	
+	;Mod_Datos
+	
+	#equ dato, 0x30 
+	#equ tipo, 0x31
+	#equ s_r, 0x32
+	
 	;------- Puertos de entrada -------
 	
 	;RTC.
@@ -198,40 +204,35 @@
 	#equ thora_in, 0x02
 	
 	#equ ready, 0x01
-	#equ irq, 0x00
+	;#equ irq, 0x00
 	
 	;Teclado.
 	
 	#equ new_data, 0x0C
 	#equ data, 0x0B
+	
+	;Mod_Datos
+	
+	#equ dato_mod, 0x0D
 
 main:
 	call inic_rtc
 	
 	lectura:
-	call leer_rtc
-	jump lectura
-	
-inic_rtc:
+		call leer_rtc
+		
+		rdprt s0, new_data; Revisa si hay nuevo dato del teclado.
+		comp s0, 0x01
+		call z, detect_tecla; Si hay.
+	jump lectura; Si no hay.
 
-	load s0, 0x00
-	; Inicializar datos de salida al RTC en 00H.
-	wrprt s0, st0_out
-	wrprt s0, st1_out
-	wrprt s0, seg_out
-	wrprt s0, min_out
-	wrprt s0, hora_out
-	wrprt s0, dia_out
-	wrprt s0, mes_out
-	wrprt s0, anio_out
-	wrprt s0, tseg_out
-	wrprt s0, tmin_out
-	wrprt s0, thora_out
+inic_rtc:
 	; Inicializar banderas de control de FSM en 0.
+	load s0, 0x00
 	wrprt s0, esc_fecha
 	wrprt s0, esc_hora
 	wrprt s0, esc_timer
-	wrprt s0, stop_timer
+	wrprt s0, act_timer
 	wrprt s0, stop_ring
 	wrprt s0, leido
 	wrprt s0, cursor_tim
@@ -239,79 +240,158 @@ inic_rtc:
 	wrprt s0, cursor_fecha
 	wrprt s0, alarma_on
 	; Inicializar valores de las direcciones para el RTC.	
-	load s1, 0x00
-	wrprt s1, dir_st0
-	load s1, 0x01
-	wrprt s1, dir_st1
-	load s1, 0x02
-	wrprt s1, dir_st2
-	load s1, 0x21
-	wrprt s1, dir_seg
-	load s1, 0x22
-	wrprt s1, dir_min
-	load s1, 0x23
-	wrprt s1, dir_hora
-	load s1, 0x24
-	wrprt s1, dir_dia
-	load s1, 0x25
-	wrprt s1, dir_mes
-	load s1, 0x26
-	wrprt s1, dir_anio
-	load s1, 0x41
-	wrprt s1, dir_tseg
-	load s1, 0x42
-	wrprt s1, dir_tmin
-	load s1, 0x43
-	wrprt s1, dir_thora
-	load s1, 0xF0
-	wrprt s1, dir_com_cyt
-	load s1, 0xF1
-	wrprt s1, dir_com_c
-	load s1, 0xF2
-	wrprt s1, dir_com_t
+	wrprt s0, dir_st0
+	load s0, 0x01
+	wrprt s0, dir_st1
+	load s0, 0x02
+	wrprt s0, dir_st2
+	load s0, 0x21
+	wrprt s0, dir_seg
+	load s0, 0x22
+	wrprt s0, dir_min
+	load s0, 0x23
+	wrprt s0, dir_hora
+	load s0, 0x24
+	wrprt s0, dir_dia
+	load s0, 0x25
+	wrprt s0, dir_mes
+	load s0, 0x26
+	wrprt s0, dir_anio
+	load s0, 0x41
+	wrprt s0, dir_tseg
+	load s0, 0x42
+	wrprt s0, dir_tmin
+	load s0, 0x43
+	wrprt s0, dir_thora
+	load s0, 0xF0
+	wrprt s0, dir_com_cyt
+	load s0, 0xF1
+	wrprt s0, dir_com_c
+	load s0, 0xF2
+	wrprt s0, dir_com_t
 	
 	; Comienza inicialización RTC.
 	
-	load s1, 0x10
-	wrprt s1, st2_out
-	load s2, 0x01
-	wrprt s2, inic
+	load s0, 0x10
+	wrprt s0, st2_out; Levanta bit de inicialización.
+	load s0, 0x01
+	wrprt s0, inic; Levanta bandera inic.
 	
-	esp_inic_1:
+	esp_ready_alto_i:; Espera que se levante ready.
 	rdprt s0, ready
 	comp s0, 0x01
-	jump z, inic_esc_1
-	jump esp_inic_1
+	jump nz, esp_ready_alto_i
 	
-	inic_esc_1:
-	load s1, 0x00
-	wrprt s1, st2_out
-		
-	esp_inic_2:
+	load s0, 0x00
+	wrprt s0, inic; Baja bandera inic.
+	
+	esp_ready_bajo_i:; Espera que baje ready.
+	rdprt s0,ready
+	comp s0, 0x01
+	jump z, esp_ready_bajo_i
+	
+	load s0, 0x00
+	wrprt s0, st2_out; Baja el bit de inicialización.
+	load s0, 0x01
+	wrprt s0, inic; Levanta bandera inic.
+	
+	esp_ready_alto_i2:; Espera que se levante ready.
 	rdprt s0, ready
 	comp s0, 0x01
-	jump z, inic_esc_2
-	jump esp_inic_2
+	jump nz, esp_ready_alto_i2	
 	
-	inic_esc_2:
-	load s2, 0x00
-	wrprt s2, inic
-ret
+	load s0, 0x00
+	wrprt s0, inic; Baja bandera inic.
+	
+	esp_ready_bajo_i2:; Espera que baje ready.
+	rdprt s0,ready
+	comp s0, 0x01
+	jump z, esp_ready_bajo_i2
+	
+	; Inicializar timer en 00H.
+	load s0, 0x00
+	wrprt s0, thora_out	
+	wrprt s0, tseg_out
+	wrprt s0, tmin_out
+	call escribir_timer
+	;load s0, 0x01
+	;wrprt s0, esc_timer; Levanta bandera esc_timer.
+	
+	;esp_ready_alto_it:; Espera que se levante ready.
+	;rdprt s0, ready
+	;comp s0, 0x01
+	;jump nz, esp_ready_alto_it
+	
+	;load s0, 0x00
+	;wrprt s0, esc_timer; Baja bandera esc_timer.
+	
+	;esp_ready_bajo_it:; Espera que baje ready.
+	;rdprt s0,ready
+	;comp s0, 0x01
+	;jump z, esp_ready_bajo_it
+	
+	; Inicializar hora en 00H.
+	load s0, 0x00
+	wrprt s0, hora_out	
+	wrprt s0, seg_out
+	wrprt s0, min_out
+	call escribir_hora
+	;load s0, 0x01
+	;wrprt s0, esc_hora; Levanta bandera esc_hora.
+	
+	;esp_ready_alto_ih:; Espera que se levante ready.
+	;rdprt s0, ready
+	;comp s0, 0x01
+	;jump nz, esp_ready_alto_ih
+	
+	;load s0, 0x00
+	;wrprt s0, esc_hora; Baja bandera esc_hora
+	
+	;esp_ready_bajo_ih:; Espera que baje ready.
+	;rdprt s0,ready
+	;comp s0, 0x01
+	;jump z, esp_ready_bajo_ih	
+	
+	; Inicializar fecha en 00H.
+	load s0, 0x00
+	wrprt s0, anio_out	
+	wrprt s0, dia_out
+	wrprt s0, mes_out
+	call escribir_fecha
+	;load s0, 0x01
+	;wrprt s0, esc_fecha; Levanta bandera esc_fecha.
+	
+	;esp_ready_alto_if:; Espera que se levante ready.
+	;rdprt s0, ready
+	;comp s0, 0x01
+	;jump nz, esp_ready_alto_if
+	
+	;load s0, 0x00
+	;wrprt s0, esc_fecha; Baja bandera esc_fecha.
+	
+	;esp_ready_bajo_if:; Espera que baje ready.
+	;rdprt s0,ready
+	;comp s0, 0x01
+	;jump z, esp_ready_bajo_if
+ret; Vuelve a main.
 
 leer_rtc:
 	load s0, 0x01
-	wrprt s0, leer ; activa máquina de lectura.
+	wrprt s0, leer; Levanta bandera leer.
 	
-	esp_leer:
-	rdprt s0, ready ; lee puerto ready.
-	comp s0, 0x01 ; ready?
-	jump z, lect_leer ; sí => pase a leer los datos del rtc.
-	jump esp_leer ; no => espere, vuelva a preguntar.
+	esp_ready_alto_l:; Espera que se levante ready.
+	rdprt s0, ready
+	comp s0, 0x01
+	jump nz, esp_ready_alto_l	
 	
-	lect_leer:
 	load s0, 0x00
-	wrprt s0, leer ; datos listos => desactivar leer.
-	; lectura de los datos del rtc.
+	wrprt s0, leer; Baja bandera leer.
+
+	esp_ready_bajo_l:; Espera que baje ready.
+	rdprt s0,ready
+	comp s0, 0x01
+	jump z, esp_ready_bajo_l
+	; Lee los datos actuales del RTC y los guarda en registros.	
 	rdprt s1, seg_in
 	rdprt s2, min_in
 	rdprt s3, hora_in
@@ -321,7 +401,29 @@ leer_rtc:
 	rdprt s7, tseg_in
 	rdprt s8, tmin_in
 	rdprt s9, thora_in
-	; escritura de los datos del rtc en la vga.
+	; Revisar si ya timer llegó a fin. Revisa si el anterior dato fue 00:00:01
+	comp sD, 0x01
+	jump nz, siga
+	comp sE, 0x00
+	jump nz, siga
+	comp sF, 0x00
+	jump nz, siga
+	call parar_timer
+	
+	;comp s7, 0x59
+	;jump nz, siga
+	;comp s8, 0x59
+	;jump nz, siga
+	;comp s9, 0x23
+	;jump nz, siga
+	;call parar_timer
+	
+	siga:
+	; Los datos del timer se duplican en otros regstros para hacer comparación.
+	load sD, s7
+	load sE, s8
+	load sF, s9
+	; Escritura de los datos leídos en la VGA.
 	wrprt s1, vga_seg
 	wrprt s2, vga_min
 	wrprt s3, vga_hora
@@ -331,9 +433,377 @@ leer_rtc:
 	wrprt s7, vga_tseg
 	wrprt s8, vga_tmin
 	wrprt s9, vga_thora
+ret ; Vuelve a main.
+
+detect_tecla:; Identifica cuál tecla se presionó y llama a la subrutina que corresponda.
+	load s0, 0x01
+	wrprt s0, leido; Levanta leído para bajar new_data.
 	
-ret ; regreso a main.
+	rdprt s7, data; Lee el dato del teclado.
+	comp s7, 0x2B; Letra F
+	call z, programar_fecha
+	comp s7, 0x33; Letra H
+	call z, programar_hora
+	comp s7, 0x2C; Letra T
+	call z, programar_timer
+	comp s7, 0x5A; Enter
+	call z, activar_timer
+	comp s7, 0x76; ESC
+	call z, parar_ring
+
+	load s0, 0x00
+	wrprt s0, leido; Baja leído para poder recibir otro dato del teclado.
+ret; Vuelve a main.
+
+escribir_fecha:
+	load s0, 0x01
+	wrprt s0, esc_fecha; Levanta bandera esc_fecha.
 	
+	esp_ready_alto_ef:; Espera que se levante ready.
+	rdprt s0, ready
+	comp s0, 0x01
+	jump nz, esp_ready_alto_ef
+	
+	load s0, 0x00
+	wrprt s0, esc_fecha; Baja bandera esc_fecha.
+	
+	esp_ready_bajo_ef:; Espera que baje ready.
+	rdprt s0,ready
+	comp s0, 0x01
+	jump z, esp_ready_bajo_ef
+ret; Regreso.
+
+escribir_hora:
+	load s0, 0x01
+	wrprt s0, esc_hora; Levanta bandera esc_hora.
+	
+	esp_ready_alto_eh:; Espera que se levante ready.
+	rdprt s0, ready
+	comp s0, 0x01
+	jump nz, esp_ready_alto_eh
+	
+	load s0, 0x00
+	wrprt s0, esc_hora; Baja bandera esc_hora.
+	
+	esp_ready_bajo_eh:; Espera que baje ready.
+	rdprt s0,ready
+	comp s0, 0x01
+	jump z, esp_ready_bajo_eh
+ret; Regreso.
+
+escribir_timer:
+	load s0, 0x01
+	wrprt s0, esc_timer; Levanta bandera esc_timer.
+	
+	esp_ready_alto_et:; Espera que se levante ready.
+	rdprt s0, ready
+	comp s0, 0x01
+	jump nz, esp_ready_alto_et
+	
+	load s0, 0x00
+	wrprt s0, esc_timer; Baja bandera esc_timer.
+	
+	esp_ready_bajo_et:; Espera que baje ready.
+	rdprt s0,ready
+	comp s0, 0x01
+	jump z, esp_ready_bajo_et
+ret; Regreso.
+
+programar_fecha:
+
+ret
+
+programar_hora:
+
+ret
+
+programar_timer:
+	;-------
+	;;;;;;;;
+	lazo_thora:; Apunta thora y guarda su dato actual en s2.
+	load s0, 0x00
+	wrprt s0, leido
+	
+	load s0, 0x04
+	wrprt s0, cursor_tim; Activa cursor thora.
+	rdprt s2, thora_in; Guarda en s2 el dato actual de thora.
+	;;;;;;;;
+	lazo0_thora:; Sale de este ciclo hasta que haya nuevo dato del teclado.
+	rdprt s0, new_data
+	comp s0, 0x01
+	jump nz, lazo0_thora
+
+	load s0, 0x01
+	wrprt s0, leido
+	; Detecta alguna de las flechas o la tecla T de nuevo.
+	rdprt s1, data
+	comp s1, 0x2C; Tecla T.
+	jump z, salir_timer; Salir de programar timer.
+	comp s1, 0x74; Flecha derecha.
+	jump z, lazo_tmin
+	comp s1, 0x6B;  Flecha izquierda.
+	jump z, lazo_tseg
+	comp s1, 0x75; Flecha arriba.
+	jump z, lazo1_thora
+	comp s1, 0x72; Flecha abajo.
+	jump z, lazo2_thora
+	
+	load s0, 0x00
+	wrprt s0, leido
+	
+	jump lazo0_thora; Si no es ninguna de esas teclas vuelve a esperar teclazo.
+	;;;;;;;;
+	lazo1_thora:; Este incrementa en 1 el dato actual y lo envia a VGA y a RTC.
+	load s0, 0x00
+	wrprt s0, leido
+	
+	load s0, 0x01
+	wrprt s0, s_r; s_r en 1 = suma.
+	jump lazo3_thora
+	;;;;;;;;
+	lazo2_thora:; Este disminuye en 1 el dato actual y lo envia a VGA y a RTC.
+	load s0, 0x00
+	wrprt s0, leido
+	
+	load s0, 0x00
+	wrprt s0, s_r; s_r en 0 = resta.
+	jump lazo3_thora
+	;;;;;;;;
+	lazo3_thora:
+	load s0, b00010
+	wrprt s0, tipo; máx = 23 (hora).
+	wrprt s2, dato; Envía el dato actual al módulo de suma/resta.
+	rdprt s2, dato_mod; Recibe el dato modificado y lo guarda en el mismo registro.
+	wrprt s2, thora_out; Escribe el nuevo dato en RTC.
+	wrprt s2, vga_thora; Escribe el nuevo dato en VGA.
+	jump lazo0_thora; Vuelve a esperar teclazo.
+	;;;;;;;;
+	;-------
+	
+	;-------
+	;;;;;;;;
+	lazo_tmin:; Apunta tmin y guarda su dato actual en s3.
+	load s0, 0x00
+	wrprt s0, leido
+	
+	load s0, 0x02
+	wrprt s0, cursor_tim
+	rdprt s3, tmin_in
+	;;;;;;;;
+	lazo0_tmin:
+	rdprt s0, new_data
+	comp s0, 0x01
+	jump nz, lazo0_tmin
+	
+	load s0, 0x01
+	wrprt s0, leido
+
+	rdprt s1, data
+	comp s1, 0x2C
+	jump z, salir_timer
+	comp s1, 0x74
+	jump z, lazo_tseg
+	comp s1, 0x6B
+	jump z, lazo_thora
+	comp s1, 0x75
+	jump z, lazo1_tmin
+	comp s1, 0x72
+	jump z, lazo2_tmin
+	
+	load s0, 0x00
+	wrprt s0, leido
+	
+	jump lazo0_tmin
+	;;;;;;;;
+	lazo1_tmin:
+	load s0, 0x00
+	wrprt s0, leido
+	
+	load s0, 0x01
+	wrprt s0, s_r
+	jump lazo3_tmin
+	;;;;;;;;
+	lazo2_tmin:
+	load s0, 0x00
+	wrprt s0, leido
+	
+	load s0, 0x00
+	wrprt s0, s_r
+	jump lazo3_tmin
+	;;;;;;;;
+	lazo3_tmin:
+	load s0, b01000
+	wrprt s0, tipo; máx = 59 (min).
+	wrprt s3, dato
+	rdprt s3, dato_mod
+	wrprt s3, tmin_out
+	wrprt s3, vga_tmin
+	jump lazo0_tmin
+	;;;;;;;;
+	;-------
+	
+	;;;;;;;;
+	;-------
+	lazo_tseg:; Apunta tseg y guarda su dato actual en s4.
+	load s0, 0x00
+	wrprt s0, leido
+	
+	load s0, 0x01
+	wrprt s0, cursor_tim
+	rdprt s4, tseg_in
+	;;;;;;;;
+	lazo0_tseg:
+	rdprt s0, new_data
+	comp s0, 0x01
+	jump nz, lazo0_tseg
+
+	load s0, 0x01
+	wrprt s0, leido
+	
+	rdprt s1, data
+	comp s1, 0x2C
+	jump z, salir_timer
+	comp s1, 0x74
+	jump z, lazo_thora
+	comp s1, 0x6B
+	jump z, lazo_tmin
+	comp s1, 0x75
+	jump z, lazo1_tseg
+	comp s1, 0x72
+	jump z, lazo2_tseg	
+	
+	load s0, 0x00
+	wrprt s0, leido	
+	jump lazo0_tseg
+	;;;;;;;;
+	lazo1_tseg:
+	load s0, 0x00
+	wrprt s0, leido
+
+	load s0, 0x01
+	wrprt s0, s_r
+	jump lazo3_tseg
+	;;;;;;;;
+	lazo2_tseg:
+	load s0, 0x00
+	wrprt s0, leido
+	
+	load s0, 0x00
+	wrprt s0, s_r
+	jump lazo3_tseg
+	;;;;;;;;
+	lazo3_tseg:
+	load s0, b01000
+	wrprt s0, tipo; máx = 59 (seg).
+	wrprt s4, dato
+	rdprt s4, dato_mod
+	wrprt s4, tseg_out
+	wrprt s4, vga_tseg
+	jump lazo0_tseg
+	;;;;;;;;
+	;-------
+	
+	;;;;;;;;
+	;-------
+	salir_timer:
+	load s0, 0x00
+	wrprt s0, cursor_tim; Desactiva cursor.
+	
+	load s0, 0x00
+	wrprt s0, leido
+	
+	call escribir_timer; Escribe en RTC los datos modificados.
+ret; Vuelve a detect_tecla.
+
+activar_timer:
+	; Levanta bits para escribir que activan el timer.
+	load s0, 0x04
+	wrprt s0, st1_out
+	load s0, 0x08
+	wrprt s0, st0_out
+	
+	load s0, 0x01
+	wrprt s0, act_timer; Levanta bandera act_timer.
+	
+	esp_ready_alto_at:; Espera que se levante el ready.
+	rdprt s0, ready
+	comp s0, 0x01
+	jump nz, esp_ready_alto_at	
+	
+	load s0, 0x00
+	wrprt s0, act_timer; Baja bandera act_timer.
+
+	esp_ready_bajo_at:; Espera que baje el ready (asegurarse que quede en estado 0 la FSM).
+	rdprt s0,ready
+	comp s0, 0x01
+	jump z, esp_ready_bajo_at
+	
+	load s0, 0x00
+	wrprt s0, leido
+ret; Vuelve a detect_tecla.
+
+parar_timer:
+	load s0, 0x01
+	wrprt s0, alarma_on
+	
+	load s0, 0x00
+	wrprt s0, st1_out
+	load s0, 0x00
+	wrprt s0, st0_out
+	
+	load s0, 0x01
+	wrprt s0, act_timer
+	
+	esp_ready_alto_pt:
+	rdprt s0, ready
+	comp s0, 0x01
+	jump nz, esp_ready_alto_pt	
+	
+	load s0, 0x00
+	wrprt s0, act_timer
+
+	esp_ready_bajo_pt:
+	rdprt s0,ready
+	comp s0, 0x01
+	jump z, esp_ready_bajo_pt
+	
+	; Inicializar timer en 00H.
+
+	load s0, 0x00
+	wrprt s0, thora_out	
+	wrprt s0, tseg_out
+	wrprt s0, tmin_out
+	
+	load s0, 0x01
+	wrprt s0, esc_timer
+	
+	esp_ready_alto_it2:
+	rdprt s0, ready
+	comp s0, 0x01
+	jump nz, esp_ready_alto_it2
+	
+	load s0, 0x00
+	wrprt s0, esc_timer
+	
+	esp_ready_bajo_it2:
+	rdprt s0,ready
+	comp s0, 0x01
+	jump z, esp_ready_bajo_it2
+	
+	; Para no mostrar 23:59:59 en timer.
+	load s7, 0x00
+	load s8, 0x00
+	load s9, 0x00
+ret; Vuelve a detect_tecla.
+
+parar_ring:
+	load s0, 0x00
+	wrprt s0, alarma_on; Apaga alarma_on de la VGA.
+	
+	load s0, 0x00
+	wrprt s0, leido
+ret; Vuelve a detect_tecla.
+
 ;jump main ; provisional
 		
 	
