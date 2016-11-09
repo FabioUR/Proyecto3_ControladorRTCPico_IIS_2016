@@ -314,21 +314,6 @@ inic_rtc:
 	wrprt s0, tseg_out
 	wrprt s0, tmin_out
 	call escribir_timer
-	;load s0, 0x01
-	;wrprt s0, esc_timer; Levanta bandera esc_timer.
-	
-	;esp_ready_alto_it:; Espera que se levante ready.
-	;rdprt s0, ready
-	;comp s0, 0x01
-	;jump nz, esp_ready_alto_it
-	
-	;load s0, 0x00
-	;wrprt s0, esc_timer; Baja bandera esc_timer.
-	
-	;esp_ready_bajo_it:; Espera que baje ready.
-	;rdprt s0,ready
-	;comp s0, 0x01
-	;jump z, esp_ready_bajo_it
 	
 	; Inicializar hora en 00H.
 	load s0, 0x00
@@ -336,43 +321,13 @@ inic_rtc:
 	wrprt s0, seg_out
 	wrprt s0, min_out
 	call escribir_hora
-	;load s0, 0x01
-	;wrprt s0, esc_hora; Levanta bandera esc_hora.
-	
-	;esp_ready_alto_ih:; Espera que se levante ready.
-	;rdprt s0, ready
-	;comp s0, 0x01
-	;jump nz, esp_ready_alto_ih
-	
-	;load s0, 0x00
-	;wrprt s0, esc_hora; Baja bandera esc_hora
-	
-	;esp_ready_bajo_ih:; Espera que baje ready.
-	;rdprt s0,ready
-	;comp s0, 0x01
-	;jump z, esp_ready_bajo_ih	
-	
+
 	; Inicializar fecha en 00H.
 	load s0, 0x00
 	wrprt s0, anio_out	
 	wrprt s0, dia_out
 	wrprt s0, mes_out
 	call escribir_fecha
-	;load s0, 0x01
-	;wrprt s0, esc_fecha; Levanta bandera esc_fecha.
-	
-	;esp_ready_alto_if:; Espera que se levante ready.
-	;rdprt s0, ready
-	;comp s0, 0x01
-	;jump nz, esp_ready_alto_if
-	
-	;load s0, 0x00
-	;wrprt s0, esc_fecha; Baja bandera esc_fecha.
-	
-	;esp_ready_bajo_if:; Espera que baje ready.
-	;rdprt s0,ready
-	;comp s0, 0x01
-	;jump z, esp_ready_bajo_if
 ret; Vuelve a main.
 
 leer_rtc:
@@ -401,28 +356,16 @@ leer_rtc:
 	rdprt s7, tseg_in
 	rdprt s8, tmin_in
 	rdprt s9, thora_in
-	; Revisar si ya timer llegó a fin. Revisa si el anterior dato fue 00:00:01
-	comp sD, 0x01
+		
+	comp s7, 0x59
 	jump nz, siga
-	comp sE, 0x00
+	comp s8, 0x59
 	jump nz, siga
-	comp sF, 0x00
+	comp s9, 0x23
 	jump nz, siga
 	call parar_timer
 	
-	;comp s7, 0x59
-	;jump nz, siga
-	;comp s8, 0x59
-	;jump nz, siga
-	;comp s9, 0x23
-	;jump nz, siga
-	;call parar_timer
-	
 	siga:
-	; Los datos del timer se duplican en otros regstros para hacer comparación.
-	load sD, s7
-	load sE, s8
-	load sF, s9
 	; Escritura de los datos leídos en la VGA.
 	wrprt s1, vga_seg
 	wrprt s2, vga_min
@@ -510,11 +453,401 @@ escribir_timer:
 ret; Regreso.
 
 programar_fecha:
+	;-------
+	;;;;;;;;
+	lazo_dia:; Apunta dia y guarda su dato actual en s8.
+	load s0, 0x00
+	wrprt s0, leido
+	
+	load s0, 0x04;posicion del cursor
+	wrprt s0, cursor_fecha; Activa cursor dia.
+	rdprt s8, dia_in; Guarda en s8 el dato actual de dia.
+	;;;;;;;;
+	lazo0_dia:; Sale de este ciclo hasta que haya nuevo dato del teclado.
+	rdprt s0, new_data
+	comp s0, 0x01
+	jump nz, lazo0_dia
 
+	load s0, 0x01
+	wrprt s0, leido
+	; Detecta alguna de las flechas o la tecla F de nuevo.
+	rdprt s1, data
+	comp s1, 0x2B; Tecla F.
+	jump z, salir_fecha; Salir de programar fecha.
+	comp s1, 0x74; Flecha derecha.
+	jump z, lazo_mes
+	comp s1, 0x6B;  Flecha izquierda.
+	jump z, lazo_anio
+	comp s1, 0x75; Flecha arriba.
+	jump z, lazo1_dia
+	comp s1, 0x72; Flecha abajo.
+	jump z, lazo2_dia
+	
+	load s0, 0x00
+	wrprt s0, leido
+	
+	jump lazo0_dia; Si no es ninguna de esas teclas vuelve a esperar teclazo.
+	;;;;;;;;
+	lazo1_dia:; Este incrementa en 1 el dato actual y lo envia a VGA y a RTC.
+	load s0, 0x00
+	wrprt s0, leido
+	
+	load s0, 0x01
+	wrprt s0, s_r; s_r en 1 = suma.
+	jump lazo3_dia
+	;;;;;;;;
+	lazo2_dia:; Este disminuye en 1 el dato actual y lo envia a VGA y a RTC.
+	load s0, 0x00
+	wrprt s0, leido
+	
+	load s0, 0x00
+	wrprt s0, s_r; s_r en 0 = resta.
+	jump lazo3_dia
+	;;;;;;;;
+	lazo3_dia:
+	load s0, b00100
+	wrprt s0, tipo; máx = 31 (dia).
+	wrprt s8, dato; Envía el dato actual al módulo de suma/resta.
+	rdprt s8, dato_mod; Recibe el dato modificado y lo guarda en el mismo registro.
+	wrprt s8, dia_out; Escribe el nuevo dato en RTC.
+	wrprt s8, vga_dia; Escribe el nuevo dato en VGA.
+	jump lazo0_dia; Vuelve a esperar teclazo.
+	;;;;;;;;
+	;-------
+	
+	;-------
+	;;;;;;;;
+	lazo_mes:; Apunta mes y guarda su dato actual en s9.
+	load s0, 0x00
+	wrprt s0, leido
+	
+	load s0, 0x02;posicion del cursor
+	wrprt s0, cursor_fecha; Activa cursor mes.
+	rdprt s9, mes_in; Guarda en s9 el dato actual de mes.
+	;;;;;;;;
+	lazo0_mes: ;Sale de este ciclo hasta que haya nuevo dato del teclado
+	rdprt s0, new_data
+	comp s0, 0x01
+	jump nz, lazo0_mes
+	
+	load s0, 0x01
+	wrprt s0, leido
+	; Detecta alguna de las flechas o la tecla F de nuevo.
+	rdprt s1, data
+	comp s1, 0x2B ; Tecla F
+	jump z, salir_fecha ;Salir de programar fecha
+	comp s1, 0x74 ;Flecha derecha
+	jump z, lazo_anio
+	comp s1, 0x6B ;Flecha izquierda
+	jump z, lazo_dia
+	comp s1, 0x75 ;Flecha arriba
+	jump z, lazo1_mes
+	comp s1, 0x72 ;Flecha abajo
+	jump z, lazo2_mes
+	
+	load s0, 0x00
+	wrprt s0, leido
+	
+	jump lazo0_mes ;Si no es ninguna de esas teclas vuelve a esperar teclazo
+	;;;;;;;;
+	lazo1_mes: ;Este incrementa en 1 el dato actual y lo envia a VGA y a RTC
+	load s0, 0x00
+	wrprt s0, leido
+	
+	load s0, 0x01
+	wrprt s0, s_r ; s_r en 1 = suma
+	jump lazo3_mes
+	;;;;;;;;
+	lazo2_mes: ;Este disminuye en 1 el dato actual y lo envia a VGA y a RTC
+	load s0, 0x00
+	wrprt s0, leido
+	
+	load s0, 0x00
+	wrprt s0, s_r ; s_r en 0 = resta
+	jump lazo3_mes
+	;;;;;;;;
+	lazo3_mes:
+	load s0, b00001
+	wrprt s0, tipo ;máx = 12 (mes).
+	wrprt s9, dato ;Envía el dato actual al módulo de suma/resta.
+	rdprt s9, dato_mod; Recibe el dato modificado y lo guarda en el mismo registro.
+	wrprt s9, mes_out; Escribe el nuevo dato en RTC.
+	wrprt s9, vga_mes; Escribe el nuevo dato en VGA.
+	jump lazo0_mes; Vuelve a esperar teclazo.
+	;;;;;;;;
+	;-------
+	
+	;;;;;;;;
+	;-------
+	lazo_anio:; Apunta año y guarda su dato actual en sA.
+	load s0, 0x00
+	wrprt s0, leido
+	
+	load s0, 0x01 ;posicion del cursor
+	wrprt s0, cursor_fecha ; Activa cursor año.
+	rdprt sA, anio_in ; Guarda en sA el dato actual de año.
+	;;;;;;;;
+	lazo0_anio: ;Sale de este ciclo hasta que haya nuevo dato del teclado
+	rdprt s0, new_data
+	comp s0, 0x01
+	jump nz, lazo0_anio
+
+	load s0, 0x01
+	wrprt s0, leido
+	; Detecta alguna de las flechas o la tecla F de nuevo.
+	rdprt s1, data
+	comp s1, 0x2B ;Tecla F 
+	jump z, salir_fecha
+	comp s1, 0x74 ;Flecha derecha
+	jump z, lazo_dia
+	comp s1, 0x6B ;Flecha izquierda
+	jump z, lazo_mes
+	comp s1, 0x75 ;Flecha arriba
+	jump z, lazo1_anio
+	comp s1, 0x72 ;Flecha abajo
+	jump z, lazo2_anio	
+	
+	load s0, 0x00
+	wrprt s0, leido	
+	
+	jump lazo0_anio ;Si no es ninguna de esas teclas vuelve a esperar teclazo
+	;;;;;;;;
+	lazo1_anio: ;Este incrementa en 1 el dato actual y lo envia a VGA y a RTC
+	load s0, 0x00
+	wrprt s0, leido
+
+	load s0, 0x01
+	wrprt s0, s_r ; s_r en 1 = suma
+	jump lazo3_anio
+	;;;;;;;;
+	lazo2_anio: ;Este disminuye en 1 el dato actual y lo envia a VGA y a RTC
+	load s0, 0x00
+	wrprt s0, leido
+	
+	load s0, 0x00
+	wrprt s0, s_r ; s_r en 0 = resta
+	jump lazo3_anio
+	;;;;;;;;
+	lazo3_anio:
+	load s0, b10000
+	wrprt s0, tipo ;máx = 99 (año).
+	wrprt sA, dato ;Envía el dato actual al módulo de suma/resta.
+	rdprt sA, dato_mod; Recibe el dato modificado y lo guarda en el mismo registro.
+	wrprt sA, anio_out; Escribe el nuevo dato en RTC.
+	wrprt sA, vga_anio; Escribe el nuevo dato en VGA.
+	jump lazo0_anio; Vuelve a esperar teclazo.
+	;;;;;;;;
+	;-------
+	
+	;;;;;;;;
+	;-------
+	salir_fecha:
+	load s0, 0x00
+	wrprt s0, cursor_fecha; Desactiva cursor.
+	
+	load s0, 0x00
+	wrprt s0, leido
+	
+	call escribir_fecha; Escribe en RTC los datos modificados.
 ret
 
 programar_hora:
+	;-------
+	;;;;;;;;
+	lazo_hora:; Apunta hora y guarda su dato actual en s5.
+	load s0, 0x00
+	wrprt s0, leido
+	
+	load s0, 0x04;posicion del cursor
+	wrprt s0, cursor_hora; Activa cursor hora.
+	rdprt s5, hora_in; Guarda en s5 el dato actual de hora.
+	;;;;;;;;
+	lazo0_hora:; Sale de este ciclo hasta que haya nuevo dato del teclado.
+	rdprt s0, new_data
+	comp s0, 0x01
+	jump nz, lazo0_hora
 
+	load s0, 0x01
+	wrprt s0, leido
+	; Detecta alguna de las flechas o la tecla H de nuevo.
+	rdprt s1, data
+	comp s1, 0x33; Tecla H.
+	jump z, salir_hora; Salir de programar hora.
+	comp s1, 0x74; Flecha derecha.
+	jump z, lazo_min
+	comp s1, 0x6B;  Flecha izquierda.
+	jump z, lazo_seg
+	comp s1, 0x75; Flecha arriba.
+	jump z, lazo1_hora
+	comp s1, 0x72; Flecha abajo.
+	jump z, lazo2_hora
+	
+	load s0, 0x00
+	wrprt s0, leido
+	
+	jump lazo0_hora; Si no es ninguna de esas teclas vuelve a esperar teclazo.
+	;;;;;;;;
+	lazo1_hora:; Este incrementa en 1 el dato actual y lo envia a VGA y a RTC.
+	load s0, 0x00
+	wrprt s0, leido
+	
+	load s0, 0x01
+	wrprt s0, s_r; s_r en 1 = suma.
+	jump lazo3_hora
+	;;;;;;;;
+	lazo2_hora:; Este disminuye en 1 el dato actual y lo envia a VGA y a RTC.
+	load s0, 0x00
+	wrprt s0, leido
+	
+	load s0, 0x00
+	wrprt s0, s_r; s_r en 0 = resta.
+	jump lazo3_hora
+	;;;;;;;;
+	lazo3_hora:
+	load s0, b00010
+	wrprt s0, tipo; máx = 23 (hora).
+	wrprt s5, dato; Envía el dato actual al módulo de suma/resta.
+	rdprt s5, dato_mod; Recibe el dato modificado y lo guarda en el mismo registro.
+	wrprt s5, hora_out; Escribe el nuevo dato en RTC.
+	wrprt s5, vga_hora; Escribe el nuevo dato en VGA.
+	jump lazo0_hora; Vuelve a esperar teclazo.
+	;;;;;;;;
+	;-------
+	
+	;-------
+	;;;;;;;;
+	lazo_min:; Apunta min y guarda su dato actual en s6.
+	load s0, 0x00
+	wrprt s0, leido
+	
+	load s0, 0x02;posicion del cursor
+	wrprt s0, cursor_hora; Activa cursor min.
+	rdprt s6, min_in; Guarda en s6 el dato actual de min.
+	;;;;;;;;
+	lazo0_min: ;Sale de este ciclo hasta que haya nuevo dato del teclado
+	rdprt s0, new_data
+	comp s0, 0x01
+	jump nz, lazo0_min
+	
+	load s0, 0x01
+	wrprt s0, leido
+	; Detecta alguna de las flechas o la tecla H de nuevo.
+	rdprt s1, data
+	comp s1, 0x33 ; Tecla H
+	jump z, salir_hora ;Salir de programar hora
+	comp s1, 0x74 ;Flecha derecha
+	jump z, lazo_seg
+	comp s1, 0x6B ;Flecha izquierda
+	jump z, lazo_hora
+	comp s1, 0x75 ;Flecha arriba
+	jump z, lazo1_min
+	comp s1, 0x72 ;Flecha abajo
+	jump z, lazo2_min
+	
+	load s0, 0x00
+	wrprt s0, leido
+	
+	jump lazo0_min ;Si no es ninguna de esas teclas vuelve a esperar teclazo
+	;;;;;;;;
+	lazo1_min: ;Este incrementa en 1 el dato actual y lo envia a VGA y a RTC
+	load s0, 0x00
+	wrprt s0, leido
+	
+	load s0, 0x01
+	wrprt s0, s_r ; s_r en 1 = suma
+	jump lazo3_min
+	;;;;;;;;
+	lazo2_min: ;Este disminuye en 1 el dato actual y lo envia a VGA y a RTC
+	load s0, 0x00
+	wrprt s0, leido
+	
+	load s0, 0x00
+	wrprt s0, s_r ; s_r en 0 = resta
+	jump lazo3_min
+	;;;;;;;;
+	lazo3_min:
+	load s0, b01000
+	wrprt s0, tipo ;máx = 59 (min).
+	wrprt s6, dato ;Envía el dato actual al módulo de suma/resta.
+	rdprt s6, dato_mod; Recibe el dato modificado y lo guarda en el mismo registro.
+	wrprt s6, min_out; Escribe el nuevo dato en RTC.
+	wrprt s6, vga_min; Escribe el nuevo dato en VGA.
+	jump lazo0_min; Vuelve a esperar teclazo.
+	;;;;;;;;
+	;-------
+	
+	;;;;;;;;
+	;-------
+	lazo_seg:; Apunta seg y guarda su dato actual en s7.
+	load s0, 0x00
+	wrprt s0, leido
+	
+	load s0, 0x01 ;posicion del cursor
+	wrprt s0, cursor_hora ; Activa cursor seg.
+	rdprt s7, seg_in ; Guarda en s7 el dato actual de seg.
+	;;;;;;;;
+	lazo0_seg: ;Sale de este ciclo hasta que haya nuevo dato del teclado
+	rdprt s0, new_data
+	comp s0, 0x01
+	jump nz, lazo0_seg
+
+	load s0, 0x01
+	wrprt s0, leido
+	; Detecta alguna de las flechas o la tecla H de nuevo.
+	rdprt s1, data
+	comp s1, 0x33 ;Tecla H 
+	jump z, salir_hora; Salir de programar hora
+	comp s1, 0x74 ;Flecha derecha
+	jump z, lazo_hora
+	comp s1, 0x6B ;Flecha izquierda
+	jump z, lazo_min
+	comp s1, 0x75 ;Flecha arriba
+	jump z, lazo1_seg
+	comp s1, 0x72 ;Flecha abajo
+	jump z, lazo2_seg	
+	
+	load s0, 0x00
+	wrprt s0, leido	
+	
+	jump lazo0_seg ;Si no es ninguna de esas teclas vuelve a esperar teclazo
+	;;;;;;;;
+	lazo1_seg: ;Este incrementa en 1 el dato actual y lo envia a VGA y a RTC
+	load s0, 0x00
+	wrprt s0, leido
+
+	load s0, 0x01
+	wrprt s0, s_r ; s_r en 1 = suma
+	jump lazo3_seg
+	;;;;;;;;
+	lazo2_seg: ;Este disminuye en 1 el dato actual y lo envia a VGA y a RTC
+	load s0, 0x00
+	wrprt s0, leido
+	
+	load s0, 0x00
+	wrprt s0, s_r ; s_r en 0 = resta
+	jump lazo3_seg
+	;;;;;;;;
+	lazo3_seg:
+	load s0, b01000
+	wrprt s0, tipo ;máx = 59 (seg).
+	wrprt s7, dato ;Envía el dato actual al módulo de suma/resta.
+	rdprt s7, dato_mod; Recibe el dato modificado y lo guarda en el mismo registro.
+	wrprt s7, seg_out; Escribe el nuevo dato en RTC.
+	wrprt s7, vga_seg; Escribe el nuevo dato en VGA.
+	jump lazo0_seg; Vuelve a esperar teclazo.
+	;;;;;;;;
+	;-------
+	
+	;;;;;;;;
+	;-------
+	salir_hora:
+	load s0, 0x00
+	wrprt s0, cursor_hora; Desactiva cursor.
+	
+	load s0, 0x00
+	wrprt s0, leido
+	
+	call escribir_hora; Escribe en RTC los datos modificados.
 ret
 
 programar_timer:
@@ -773,22 +1106,22 @@ parar_timer:
 	wrprt s0, thora_out	
 	wrprt s0, tseg_out
 	wrprt s0, tmin_out
+	call escribir_timer
+	;load s0, 0x01
+	;wrprt s0, esc_timer
 	
-	load s0, 0x01
-	wrprt s0, esc_timer
+	;esp_ready_alto_it2:
+	;rdprt s0, ready
+	;comp s0, 0x01
+	;jump nz, esp_ready_alto_it2
 	
-	esp_ready_alto_it2:
-	rdprt s0, ready
-	comp s0, 0x01
-	jump nz, esp_ready_alto_it2
+	;load s0, 0x00
+	;wrprt s0, esc_timer
 	
-	load s0, 0x00
-	wrprt s0, esc_timer
-	
-	esp_ready_bajo_it2:
-	rdprt s0,ready
-	comp s0, 0x01
-	jump z, esp_ready_bajo_it2
+	;esp_ready_bajo_it2:
+	;rdprt s0,ready
+	;comp s0, 0x01
+	;jump z, esp_ready_bajo_it2
 	
 	; Para no mostrar 23:59:59 en timer.
 	load s7, 0x00
