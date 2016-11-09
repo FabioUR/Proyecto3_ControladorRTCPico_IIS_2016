@@ -1,11 +1,11 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
-// Engineer: Fabio Ureña Rojas
+// Engineer: Fabio Ureña Rojas, Camila Gómez Molina, Steven León Domínguez
 // 
 // Create Date:    16:45:40 10/17/2016 
 // Design Name: 
-// Module Name:    Generador_Letras 
+// Module Name:    Generador_Letras e imágenes 
 // Project Name: 
 // Target Devices: 
 // Tool versions: 
