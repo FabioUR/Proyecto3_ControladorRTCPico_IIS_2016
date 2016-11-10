@@ -155,6 +155,7 @@ module Generador_Letras(
 	assign Caja_TIMER_on = (pix_x>=Caja_TIMER_XI)&&(pix_x<=Caja_TIMER_XD)&&(pix_y>=Caja_TIMER_YA)&&(pix_y<=Caja_TIMER_YD);
 	assign Caja_HORA_on = (pix_x>=Caja_HORA_XI)&&(pix_x<=Caja_HORA_XD)&&(pix_y>=Caja_HORA_YA)&&(pix_y<=Caja_HORA_YD);
 	
+	
 	//Imagen Fecha
 	localparam fecha_X = 129; 
 	localparam fecha_Y = 29; 
@@ -169,55 +170,98 @@ module Generador_Letras(
 	localparam timer_X = 136; 
 	localparam timer_Y = 28; 
 	localparam timer_size = 3808;// (136x28)
+	 
+	//Imagen 24H
+	localparam H24_X = 93;
+	localparam H24_Y = 29;
+	localparam H24_size = 2697;//(93x29);
 	
-	/* 
+
 	//Imagen Flechas
 	localparam flechas_X = 154;
 	localparam flechas_Y = 103;
 	localparam flechas_size = 15862; //(154x103)
 	
 	//Imagen Ring
-	localparam ring_X = 77;
-	localparam ring_Y = 68;
-	localparam ring_size = 5236 (77x68);
+	localparam ring_X = 55;
+	localparam ring_Y = 50;
+	localparam ring_size = 2750; //(55x50);
 	
-	//Imagen 24H
-	localparam H24_X = 93;
-	localparam H24_Y = 29;
-	localparam H24_size = 2697//(93x29);
-	*/
+	//Imagen Programar Fecha
+	localparam PFX = 183;
+	localparam PFY = 24;
+	localparam PF_size = 4392;
+	
+	//Imagen Programar Hora
+	localparam PHX = 173;
+	localparam PHY = 25;
+	localparam PH_size = 4325;
+	
+	//Imagen Programar Timer
+	localparam PTX = 188;
+	localparam PTY = 24;
+	localparam PT_size = 4512;
+	
+	//Imagen Activar Timer
+	localparam ATX = 217;
+	localparam ATY = 19;
+	localparam AT_size = 4123;
+	
+	//Imagen Detener alarma
+	localparam DTX = 285;
+	localparam DTY = 19;
+	localparam DT_size = 5415;
+	
+	
 	
 	//Declaración señales
 	//reg [7:0] COLOUR_IN;
+	
 	reg [11:0] COLOUR_DATA_f [0:fecha_size-1];
 	reg [11:0] COLOUR_DATA_h [0:hora_size-1];
 	reg [11:0] COLOUR_DATA_t [0:timer_size-1];
-	/*
 	reg [11:0] COLOUR_DATA_fl [0:flechas_size-1];
 	reg [11:0] COLOUR_DATA_r [0:ring_size-1];
 	reg [11:0] COLOUR_DATA_H24 [0:H24_size-1];
-	*/
+	reg [11:0] COLOUR_DATA_AT [0:AT_size-1];
+	reg [11:0] COLOUR_DATA_DT [0:DT_size-1];
+	reg [11:0] COLOUR_DATA_PF [0:PF_size-1];
+	reg [11:0] COLOUR_DATA_PH [0:PH_size-1];
+	reg [11:0] COLOUR_DATA_PT [0:PT_size-1];
+	
+	
 	
 	wire [19:0] STATE_f;
 	wire [19:0] STATE_h;
 	wire [19:0] STATE_t;
 	
-	/*
+	wire [19:0] STATE_AT;
+	wire [19:0] STATE_DT;
+	wire [19:0] STATE_PF;
+	wire [19:0] STATE_PH;
+	wire [19:0] STATE_PT;
+	
 	wire [19:0] STATE_fl;
+	
 	wire [19:0] STATE_r;
 	wire [19:0] STATE_H24;
-	*/
+
 	
 	wire im_fecha;
 	wire im_hora;
 	wire im_timer;
+	wire im_AT;
+	wire im_DT;
+	wire im_PF;
+	wire im_PH;
+	wire im_PT;
 	reg  [11:0] graph_rgb_aux;
 	
-	/*
+	
 	wire im_flechas;
 	wire im_ring;
 	wire im_H24;
-	*/
+	
 	
 	//Coordenadas Imagen Fecha
 	reg signed [10:0]X = 127;
@@ -226,28 +270,47 @@ module Generador_Letras(
 	//assign Y = 30;
 	
 	//Coordenadas Imagen Hora
-	reg signed [10:0]XH = 136;
-	reg signed [9:0]YH = 135;
+	reg signed [10:0]XH = 100;
+	reg signed [9:0]YH = 155;
 	
 	//Coordenadas Imagen timer
 	reg signed [10:0]XT = 123;
 	reg signed [9:0]YT = 280;
 	
-	/*
+	
 	//Coordenadas Imagen Flechas
-	reg signed [10:0]XF = 123;
-	reg signed [9:0]YF = 280;
+	reg signed [10:0]XF = 400;
+	reg signed [9:0]YF = 185;
 	
 	//Coordenadas Imagen Ring
-	reg signed [10:0]XR = 123;
-	reg signed [9:0]YR = 280;
+	reg signed [10:0]XR = 400;
+	reg signed [9:0]YR = 318;
 	
-	//Coordenadas Imagen 24H
-	reg signed [10:0]X24H = 123;
-	reg signed [9:0]Y24H = 280;
-	*/
+//	Coordenadas Imagen 24H
+	reg signed [10:0]XH24 = 235;
+	reg signed [9:0]YH24 = 155;
+	
+	//Coordenadas Imagen PF
+	reg signed [10:0]XPF = 340;
+	reg signed [9:0]YPF = 15;
+	
+	//Coordenadas Imagen PH
+	reg signed [10:0]XPH = 340;
+	reg signed [9:0]YPH = 44;
 
+	//Coordenadas Imagen PT
+	reg signed [10:0]XPT = 340;
+	reg signed [9:0]YPT = 74;
+	
+	//Coordenadas Imagen AT
+	reg signed [10:0]XAT = 340;
+	reg signed [9:0]YAT = 103;
+	
+	//Coordenadas Imagen DT
+	reg signed [10:0]XDT = 340;
+	reg signed [9:0]YDT = 131;
 	//Lectura de las imágenes
+	
 	initial
 	$readmemh ("fecha.list", COLOUR_DATA_f);
 	
@@ -256,32 +319,54 @@ module Generador_Letras(
 	
 	initial
 	$readmemh ("timer1.list", COLOUR_DATA_t);
-	
-	/*
+
 	initial
 	$readmemh ("flechas.list", COLOUR_DATA_fl);
 	
+
 	initial
-	$readmemh ("ring.list", COLOUR_DATA_r);
+	$readmemh ("ring1.list", COLOUR_DATA_r);
 	
 	initial
 	$readmemh ("24h.list", COLOUR_DATA_H24);
-	*/
+	
+	initial
+	$readmemh ("PF.list", COLOUR_DATA_PF);
+	
+	initial
+	$readmemh ("PH.list", COLOUR_DATA_PH);
+	
+	initial
+	$readmemh ("PT.list", COLOUR_DATA_PT);
+	
+	initial
+	$readmemh ("DT.list", COLOUR_DATA_DT);
+	
+	initial
+	$readmemh ("AT1.list", COLOUR_DATA_AT);
+	
+
 	
 	
 	//Asignación STATE
+	
+	
 	assign STATE_f = ((pix_x-X)*fecha_Y)+pix_y-Y;
 	assign STATE_h = ((pix_x-XH)*hora_Y)+pix_y-YH;
 	assign STATE_t = ((pix_x-XT)*timer_Y)+pix_y-YT;
-	
-	/*
 	assign STATE_fl = ((pix_x-XF)*flechas_Y)+pix_y-YF;
 	assign STATE_r = ((pix_x-XR)*ring_Y)+pix_y-YR;
 	assign STATE_H24 = ((pix_x-XH24)*H24_Y)+pix_y-YH24;
-	*/
+	assign STATE_PH = ((pix_x-XPH)*PHY)+pix_y-YPH;
+	assign STATE_PF = ((pix_x-XPF)*PFY)+pix_y-YPF;
+	assign STATE_PT = ((pix_x-XPT)*PTY)+pix_y-YPT;
+	assign STATE_AT = ((pix_x-XAT)*ATY)+pix_y-YAT;
+	assign STATE_DT = ((pix_x-XDT)*DTY)+pix_y-YDT;
+	
 
 	
 	//Verifica cuando se cumplen las coordenadas para pintar la imagen
+		
 		assign im_fecha = (pix_x>=X && pix_x<X+fecha_X && pix_y>=Y && pix_y<Y+fecha_Y);
 				//im_fecha <= 1;
 				//graph_rgb <= COLOUR_DATA[{STATE}];
@@ -292,12 +377,18 @@ module Generador_Letras(
 		assign im_timer = (pix_x>=XT && pix_x<XT+timer_X	&& pix_y>=YT && pix_y<YT+timer_Y);
 				//im_timer <= 1;
 		
-		/*
 		assign im_flechas = (pix_x>=XF && pix_x<XF+flechas_X && pix_y>=YF && pix_y<YF+flechas_Y);
 		assign im_ring = (pix_x>=XR && pix_x<XR+ring_X && pix_y>=YR && pix_y<YR+ring_Y);
 		assign im_H24= (pix_x>=XH24 && pix_x<XH24+H24_X && pix_y>=YH24 && pix_y<YH24+H24_Y);
 		
-		*/
+		
+		assign im_PH= (pix_x>=XPH && pix_x<XPH+PHX && pix_y>=YPH && pix_y<YPH+PHY);
+		assign im_PF= (pix_x>=XPF && pix_x<XPF+PFX && pix_y>=YPF && pix_y<YPF+PFY);
+		assign im_PT= (pix_x>=XPT && pix_x<XPT+PTX && pix_y>=YPT && pix_y<YPT+PTY);
+		assign im_AT= (pix_x>=XAT && pix_x<XAT+ATX && pix_y>=YAT && pix_y<YAT+ATY);
+		assign im_DT= (pix_x>=XDT && pix_x<XDT+DTX && pix_y>=YDT && pix_y<YDT+DTY);
+		
+	
 	/*
 	//1. Definir el espacio y las letras correspondientes a la palabra FECHA 16x32
 	assign FECHA_on = ((pix_y>=28) && (pix_y<=59) && (pix_x[9:4]>=10) && (pix_x[9:4]<=14));
@@ -360,6 +451,7 @@ module Generador_Letras(
 	end
 	*/
 	
+	/*
 	//4. Mostrar Palabra 24 H
 	assign ForMili_on = ((pix_y>=159) && (pix_y<=186)&& (pix_x[9:6]==4)); //Me difine el tamaño y=2^5 y x=2^5
 	assign row_addr_ForMili = pix_y[4:1]; // pix_y[5:1]//me define el tamaño de la letra
@@ -382,7 +474,7 @@ module Generador_Letras(
 			
 		endcase
 	end
-
+	*/
 	//5. Mostrar digitos de la Hora
 	assign NumHORA_on = (pix_y[9:5]>=6)&& (pix_y[9:5]<=7) && (pix_x[9:6]>=1) && (pix_x[9:6]<=4);
 	assign row_addr_NumHORA = pix_y[5:2];
@@ -449,6 +541,7 @@ module Generador_Letras(
 		endcase	
 	end
 
+	/*
 	//8. Mostrar Simbolo para la alarma
 	assign SIMBOLO_on = (pix_y[9:5]==10) && (pix_x[9:5]==11);
 	assign row_addr_SIMBOLO = pix_y[4:1]; //pix_y[5:1]
@@ -463,6 +556,7 @@ module Generador_Letras(
 			default: char_addr_SIMBOLO = 7'h00;//Espacio en blanco
 		endcase	
 	end
+	*/
 	
 	assign rom_addr = {char_addr, row_addr};
    assign font_bit = font_word[~bit_addr];
@@ -474,15 +568,40 @@ module Generador_Letras(
 		graph_rgb = 12'h000;
 		
 		//Caso cuando se cumplen las coordenadas de una imagen
+		
 		if(im_hora) graph_rgb = COLOUR_DATA_h[{STATE_h}];
 		else if (im_fecha) graph_rgb = COLOUR_DATA_f[{STATE_f}];
 		else if (im_timer) graph_rgb = COLOUR_DATA_t[{STATE_t}];
-		
-		/*
 		else if (im_flechas) graph_rgb = COLOUR_DATA_fl[{STATE_fl}];
-		else if (im_ring) graph_rgb = COLOUR_DATA_r[{STATE_r}];
-		else if (im_H24) graph_rgb = COLOUR_DATA_H24[{STATE_H24}];
+		else if (im_ring) 
+			begin
+			if (Alarma_on == 1 && CLK1Hz==1)
+					graph_rgb = COLOUR_DATA_r[{STATE_r}];
+			else 
+				graph_rgb = 12'h000;
+			end
+			/*
+		else if (SIMBOLO_on) //Impresion del Simbolo
+									//FALTA AGREGAR LA CONDICION CUANDO PARPADEA LA ALARMA, 
+		begin
+			char_addr = char_addr_SIMBOLO;
+			row_addr = row_addr_SIMBOLO;
+			bit_addr = bit_addr_SIMBOLO;
+				if (font_bit) begin
+					if (Alarma_on==1 && CLK1Hz==1)
+						graph_rgb = 12'hE44; //ROJO-NARANJA
+					else
+					graph_rgb = 12'hFFF;   //blanco
+				end
+		end
 		*/
+		else if (im_H24) graph_rgb = COLOUR_DATA_H24[{STATE_H24}];
+		else if (im_PH) graph_rgb = COLOUR_DATA_PH[{STATE_PH}];
+		else if (im_PF) graph_rgb = COLOUR_DATA_PF[{STATE_PF}];
+		else if (im_PT) graph_rgb = COLOUR_DATA_PT[{STATE_PT}];
+		else if (im_AT) graph_rgb = COLOUR_DATA_AT[{STATE_AT}];
+		else if (im_DT) graph_rgb = COLOUR_DATA_DT[{STATE_DT}];
+		
 		
 		/*
 		if (FECHA_on) //palabra FECHA
@@ -543,6 +662,7 @@ module Generador_Letras(
 				end
 		end
 		
+		/*
 		else if (ForMili_on) //Palabra 24H. Posteriormente se hará cambio
 		begin
 			char_addr = char_addr_ForMili;
@@ -552,7 +672,7 @@ module Generador_Letras(
 					graph_rgb = 12'h5AF; //blanco
 				end
 		end
-		
+		*/
 		/*
 		else if (TIMER_on) //Palabra TIMER
 		begin
@@ -582,6 +702,7 @@ module Generador_Letras(
 				end
 		end
 		
+		/*
 		else if (SIMBOLO_on) //Impresion del Simbolo
 									//FALTA AGREGAR LA CONDICION CUANDO PARPADEA LA ALARMA, 
 		begin
@@ -595,7 +716,7 @@ module Generador_Letras(
 					graph_rgb = 12'hFFF;   //blanco
 				end
 		end
-		
+		*/
 		//PARA IMPRIMIR LAS CAJAS
 		else if (Caja_FECHA_on)
 		begin
