@@ -546,7 +546,6 @@ module Generador_Letras(
 	assign SIMBOLO_on = (pix_y[9:5]==10) && (pix_x[9:5]==11);
 	assign row_addr_SIMBOLO = pix_y[4:1]; //pix_y[5:1]
 	assign bit_addr_SIMBOLO = pix_x[3:1]; //pix_x[4:1]
-
 	always@*
 	begin
 		case(pix_x[9:5]) //coordenadas definidas dependiendo de las coordenadas especificadas anteriormente en SIMBOLO_on

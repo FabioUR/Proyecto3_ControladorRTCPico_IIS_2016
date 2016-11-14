@@ -41,7 +41,11 @@ module PICOBLAZE(
 	
 	/* VGA */
 	output wire h_sync, v_sync,
-	output wire [11:0] graph_rgb
+	output wire [11:0] graph_rgb,
+	
+	/* Audio */
+	output wire ampPWM,
+	output wire ampSD
 	);
 	
 	wire reset;
@@ -446,7 +450,7 @@ module PICOBLAZE(
 		.bandera_cursor(cursor),
 		.digit_DD(vga_dia_sal),
 		.digit_M(vga_mes_sal),
-		.digit_AN(data/*vga_anio_sal*/),
+		.digit_AN(vga_anio_sal),
 		.digit_HORA(vga_hora_sal),
 		.digit_MIN(vga_min_sal),
 		.digit_SEG(vga_seg_sal),
@@ -454,5 +458,15 @@ module PICOBLAZE(
 		.digit_TimerMIN(vga_tmin_sal),
 		.digit_TimerHORA(vga_thora_sal)
 	);
-
+	
+	/* SONIDO */
+	
+	SONIDO Beep(
+		.clk(clk),
+		.reset(reset),
+		.alarma_on(alarma_on),
+		.ampPWM(ampPWM),
+		.ampSD(ampSD)
+	);
+	
 endmodule
