@@ -1,11 +1,11 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
-// Engineer: Fabio UreÒa Rojas, Camila GÛmez Molina, Steven LeÛn DomÌnguez
+// Engineer: Fabio Ure√±a Rojas, Camila G√≥mez Molina, Steven Le√≥n Dom√≠nguez
 // 
 // Create Date:    16:45:40 10/17/2016 
 // Design Name: 
-// Module Name:    Generador_Letras e im·genes 
+// Module Name:    Generador_Letras e im√°genes 
 // Project Name: 
 // Target Devices: 
 // Tool versions: 
@@ -25,14 +25,14 @@ module Generador_Letras(
 	input wire [7:0] digit_DD, digit_M, digit_AN, digit_HORA, digit_MIN, digit_SEG, digit_TimerHORA, digit_TimerMIN, digit_TimerSEG,
 	input wire [8:0] bandera_cursor, //banderas para activar lo que se desea cambiar
 	//input wire [2:0] switch_cursor,  //establecer si se cambia fecha, hora, timer
-	input wire [9:0] pix_x, pix_y, // Coordenadas del esc·ner del VGA.
+	input wire [9:0] pix_x, pix_y, // Coordenadas del esc√°ner del VGA.
 	input wire Alarma_on,
 	
 	//SALIDAS
 	output reg [11:0] graph_rgb // Salida para controlar color en VGA.
    );
 	
-	// DeclaraciÛn de seÒales, base. Para el momento de impresion
+	// Declaraci√≥n de se√±ales, base. Para el momento de impresion
    wire [10:0] rom_addr;
    //wire [11:0] rom_addr;
 	reg [6:0] char_addr;
@@ -43,7 +43,7 @@ module Generador_Letras(
    wire [7:0] font_word;
    wire font_bit;
 	
-	//DeclaraciÛn de seÒales de variables a mostrar
+	//Declaraci√≥n de se√±ales de variables a mostrar
 	reg [6:0] char_addr_FECHA, char_addr_NumFECHA, char_addr_HORA, char_addr_NumHORA, char_addr_ForMili, char_addr_TIMER, char_addr_NumTIMER, char_addr_SIMBOLO;
 	//reg [11:0] char_addr_FECHA, char_addr_NumFECHA, char_addr_HORA, char_addr_NumHORA, char_addr_ForMili, char_addr_TIMER, char_addr_NumTIMER, char_addr_SIMBOLO;
 
@@ -98,29 +98,7 @@ module Generador_Letras(
 			cont <= cont + 1'b1;
 		end
 	end
-	assign CLK1Hz = cont[24];
-
-
-///// BORRAR
-/////	BORRAR
-/*	reg [7:0] TIMERHORA=0;
-	
-	reg [5:0] contadora = 0;
-	always @(posedge CLK1Hz)
-	begin
-		if (contadora==59)
-		begin
-			TIMERHORA=4'b0000;
-			contadora=0;
-		end
-		else
-		begin
-			TIMERHORA=TIMERHORA+1;
-			contadora=contadora+1;
-		end
-	end
-	assign digit_TimerHORA = TIMERHORA;*/
-	
+	assign CLK1Hz = cont[24];	
 	
 	//FECHA
 	assign digitDec_DD = digit_DD[7:4];
@@ -146,8 +124,8 @@ module Generador_Letras(
 	assign digitDec_TimerSEG  = digit_TimerSEG[7:4];
 	assign digitUni_TimerSEG  = digit_TimerSEG[3:0];
 	
-	//ESTABLECER LAS SE—ALES DE "ON" DE CADA CAJA
-	//DECLARACI”N DE LAS SE—ALES DE LA CAJA
+	//ESTABLECER LAS SE√ëALES DE "ON" DE CADA CAJA
+	//DECLARACI√ìN DE LAS SE√ëALES DE LA CAJA
 	wire Caja_FECHA_on, Caja_TIMER_on, Caja_HORA_on;
 	
 	//ESTABLECIMIENTO CUANDO SE PINTARAN LOS CUADROS
@@ -214,8 +192,7 @@ module Generador_Letras(
 	
 	
 	
-	//DeclaraciÛn seÒales
-	//reg [7:0] COLOUR_IN;
+	//Declaraci√≥n se√±ales
 	
 	reg [11:0] COLOUR_DATA_f [0:fecha_size-1];
 	reg [11:0] COLOUR_DATA_h [0:hora_size-1];
@@ -229,20 +206,15 @@ module Generador_Letras(
 	reg [11:0] COLOUR_DATA_PH [0:PH_size-1];
 	reg [11:0] COLOUR_DATA_PT [0:PT_size-1];
 	
-	
-	
 	wire [19:0] STATE_f;
 	wire [19:0] STATE_h;
 	wire [19:0] STATE_t;
-	
 	wire [19:0] STATE_AT;
 	wire [19:0] STATE_DT;
 	wire [19:0] STATE_PF;
 	wire [19:0] STATE_PH;
 	wire [19:0] STATE_PT;
-	
 	wire [19:0] STATE_fl;
-	
 	wire [19:0] STATE_r;
 	wire [19:0] STATE_H24;
 
@@ -255,19 +227,17 @@ module Generador_Letras(
 	wire im_PF;
 	wire im_PH;
 	wire im_PT;
-	reg  [11:0] graph_rgb_aux;
-	
-	
 	wire im_flechas;
 	wire im_ring;
 	wire im_H24;
 	
+	reg  [11:0] graph_rgb_aux;
+		
 	
 	//Coordenadas Imagen Fecha
 	reg signed [10:0]X = 127;
 	reg signed [9:0]Y = 30;
-	//assign X = 127;
-	//assign Y = 30;
+
 	
 	//Coordenadas Imagen Hora
 	reg signed [10:0]XH = 100;
@@ -286,7 +256,7 @@ module Generador_Letras(
 	reg signed [10:0]XR = 400;
 	reg signed [9:0]YR = 318;
 	
-//	Coordenadas Imagen 24H
+	//Coordenadas Imagen 24H
 	reg signed [10:0]XH24 = 235;
 	reg signed [9:0]YH24 = 155;
 	
@@ -309,7 +279,9 @@ module Generador_Letras(
 	//Coordenadas Imagen DT
 	reg signed [10:0]XDT = 340;
 	reg signed [9:0]YDT = 131;
-	//Lectura de las im·genes
+	
+	
+	//Lectura de las im√°genes
 	
 	initial
 	$readmemh ("fecha.list", COLOUR_DATA_f);
@@ -323,7 +295,6 @@ module Generador_Letras(
 	initial
 	$readmemh ("flechas.list", COLOUR_DATA_fl);
 	
-
 	initial
 	$readmemh ("ring1.list", COLOUR_DATA_r);
 	
@@ -348,7 +319,7 @@ module Generador_Letras(
 
 	
 	
-	//AsignaciÛn STATE
+	//Asignaci√≥n STATE
 	
 	
 	assign STATE_f = ((pix_x-X)*fecha_Y)+pix_y-Y;
@@ -368,20 +339,11 @@ module Generador_Letras(
 	//Verifica cuando se cumplen las coordenadas para pintar la imagen
 		
 		assign im_fecha = (pix_x>=X && pix_x<X+fecha_X && pix_y>=Y && pix_y<Y+fecha_Y);
-				//im_fecha <= 1;
-				//graph_rgb <= COLOUR_DATA[{STATE}];
-		//else
 		assign im_hora = (pix_x>=XH && pix_x<XH+hora_X && pix_y>=YH && pix_y<YH+hora_Y);
-				//im_hora <= 1;
-		//else 
 		assign im_timer = (pix_x>=XT && pix_x<XT+timer_X	&& pix_y>=YT && pix_y<YT+timer_Y);
-				//im_timer <= 1;
-		
 		assign im_flechas = (pix_x>=XF && pix_x<XF+flechas_X && pix_y>=YF && pix_y<YF+flechas_Y);
 		assign im_ring = (pix_x>=XR && pix_x<XR+ring_X && pix_y>=YR && pix_y<YR+ring_Y);
 		assign im_H24= (pix_x>=XH24 && pix_x<XH24+H24_X && pix_y>=YH24 && pix_y<YH24+H24_Y);
-		
-		
 		assign im_PH= (pix_x>=XPH && pix_x<XPH+PHX && pix_y>=YPH && pix_y<YPH+PHY);
 		assign im_PF= (pix_x>=XPF && pix_x<XPF+PFX && pix_y>=YPF && pix_y<YPF+PFY);
 		assign im_PT= (pix_x>=XPT && pix_x<XPT+PTX && pix_y>=YPT && pix_y<YPT+PTY);
@@ -389,28 +351,11 @@ module Generador_Letras(
 		assign im_DT= (pix_x>=XDT && pix_x<XDT+DTX && pix_y>=YDT && pix_y<YDT+DTY);
 		
 	
-	/*
-	//1. Definir el espacio y las letras correspondientes a la palabra FECHA 16x32
-	assign FECHA_on = ((pix_y>=28) && (pix_y<=59) && (pix_x[9:4]>=10) && (pix_x[9:4]<=14));
-	assign row_addr_FECHA = pix_y[4:1]; //me define el tamaÒo de la letra
-	assign bit_addr_FECHA = pix_x[3:1]; //me define el tamaÒo de la letra
 	
-	
-	always @* 
-		case(pix_x[6:4]) //para este caso cada 2^4 bits se pinta nueva letra
-							  //coordenadas definidas dependiendo de las coordenadas especificadas anteriormente en FECHA_on
-			4'h2: char_addr_FECHA = 7'h46; //F
-			4'h3: char_addr_FECHA = 7'h45; //E
-			4'h4: char_addr_FECHA = 7'h43; //C
-			4'h5: char_addr_FECHA = 7'h48; //H
-			4'h6: char_addr_FECHA = 7'h41; //A
-			default: char_addr_FECHA = 7'h00;//Espacio en blanco
-		endcase
-	*/
-	//2. Mostrar digitos de la fecha 64x32
+	//Mostrar digitos de la fecha 64x32
 	assign NumFECHA_on = (pix_y[9:5]<=3) && (pix_y[9:5]>=2) && (pix_x[9:6]>=1) && (pix_x[9:6]<=4); //coordenadas donde se pintara los digitos
-	assign row_addr_NumFECHA = pix_y[5:2]; //tamaÒo de la letra 
-	assign bit_addr_NumFECHA = pix_x[4:2]; //tamaÒo de la letra
+	assign row_addr_NumFECHA = pix_y[5:2]; //tama√±o de la letra 
+	assign bit_addr_NumFECHA = pix_x[4:2]; //tama√±o de la letra
 
 	always@*
 	begin
@@ -423,59 +368,14 @@ module Generador_Letras(
 			3'h6: char_addr_NumFECHA = {3'b011, digitUni_M};//(unidades mes)
 			3'h7: char_addr_NumFECHA = 7'h2f;// /
 			//3'h7: char_addr_NumFECHA = 16'h5e0;// /
-			3'h0: char_addr_NumFECHA = {3'b011, digitDec_AN};//(unidad de millar aÒo)
-			3'h1: char_addr_NumFECHA = {3'b011, digitUni_AN};//(Centenas aÒo)
+			3'h0: char_addr_NumFECHA = {3'b011, digitDec_AN};//(unidad de millar a√±o)
+			3'h1: char_addr_NumFECHA = {3'b011, digitUni_AN};//(Centenas a√±o)
 			//default: char_addr_NumFECHA = 16'h000;//Espacio en blanco
 			default: char_addr_NumFECHA = 7'h00;//Espacio en blanco
 		endcase	
 	end
 	
-	
-	/*
-	//3. Mostrar Palabra HORA
-	assign HORA_on = ((pix_y>=159) && (pix_y<=186) && (pix_x[9:4]>=10) && (pix_x[9:4]<=14)); //Me difine el tamaÒo y=2^5 y x=2^5
-	assign row_addr_HORA = pix_y[4:1]; //pix_y[5:1] //me define el tamaÒo de la letra
-	assign bit_addr_HORA = pix_x[3:1]; //pix_x[4:1]//me define el tamaÒo de la letra
-	
-	always @* 
-	begin
-		case(pix_x[6:4]) //para este caso cada 2^4 bits se pinta nueva letra
-							  //coordenadas definidas dependiendo de las coordenadas especificadas anteriormente en HORA_on
-			4'h2: char_addr_HORA = 7'h48; //H
-			4'h3: char_addr_HORA = 7'h4f; //O
-			4'h4: char_addr_HORA = 7'h52; //R
-			4'h5: char_addr_HORA = 7'h41; //A
-			default: char_addr_HORA = 7'h00;//Espacio en blanco
-			
-		endcase
-	end
-	*/
-	
-	/*
-	//4. Mostrar Palabra 24 H
-	assign ForMili_on = ((pix_y>=159) && (pix_y<=186)&& (pix_x[9:6]==4)); //Me difine el tamaÒo y=2^5 y x=2^5
-	assign row_addr_ForMili = pix_y[4:1]; // pix_y[5:1]//me define el tamaÒo de la letra
-	assign bit_addr_ForMili = pix_x[3:1]; // pix_x[4:1]//me define el tamaÒo de la letra
-	
-	always @* 
-	begin
-		case(pix_x[5:4]) //para este caso cada 2^4 bits se pinta nueva letra
-			
-			//2'h0: char_addr_ForMili = 16'h640; //2
-			//2'h1: char_addr_ForMili = 16'h680; //4 
-			//2'h2: char_addr_ForMili = 16'h000; //espacio en blanco
-			//2'h3: char_addr_ForMili = 16'h700; //8
-		
-			2'h0: char_addr_ForMili = 7'h32; //2
-			2'h1: char_addr_ForMili = 7'h34; //4 
-			2'h2: char_addr_ForMili = 7'h00; //espacio en blanco
-			2'h3: char_addr_ForMili = 7'h41; //A
-			
-			
-		endcase
-	end
-	*/
-	//5. Mostrar digitos de la Hora
+	// Mostrar digitos de la Hora
 	assign NumHORA_on = (pix_y[9:5]>=6)&& (pix_y[9:5]<=7) && (pix_x[9:6]>=1) && (pix_x[9:6]<=4);
 	assign row_addr_NumHORA = pix_y[5:2];
 	assign bit_addr_NumHORA = pix_x[4:2];
@@ -486,39 +386,16 @@ module Generador_Letras(
 			3'h2: char_addr_NumHORA = {3'b011, digitDec_HORA};//(decenas dia)
 			3'h3: char_addr_NumHORA = {3'b011, digitUni_HORA};//(unidades dia)
 			3'h4: char_addr_NumHORA = 7'h3a;// :
-			//3'h4: char_addr_NumHORA = 16'h740;// :
 			3'h5: char_addr_NumHORA = {3'b011, digitDec_MIN};//(decenas Mes)
 			3'h6: char_addr_NumHORA = {3'b011, digitUni_MIN};//(unidades mes)
-			//3'h7: char_addr_NumHORA = 16'h740;// :
 			3'h7: char_addr_NumHORA = 7'h3a;// :
-			3'h0: char_addr_NumHORA = {3'b011, digitDec_SEG};//(unidad de millar aÒo)
-			3'h1: char_addr_NumHORA = {3'b011, digitUni_SEG};//(Centenas aÒo)
+			3'h0: char_addr_NumHORA = {3'b011, digitDec_SEG};//(unidad de millar a√±o)
+			3'h1: char_addr_NumHORA = {3'b011, digitUni_SEG};//(Centenas a√±o)
 			default: char_addr_NumHORA = 7'h00;//Espacio en blanco
-
-			//default: char_addr_NumHORA = 16'h000;//Espacio en blanco
 		endcase	
 	end
-	
-	/*
-	//6. Mostrar Palabra TIMER
-	assign TIMER_on = ((pix_y>=283) && (pix_y<=310) && (pix_x[9:4]>=9) && (pix_x[9:4]<=15)); //Me difine el tamaÒo y=2^5 y x=2^5
-	assign row_addr_TIMER = pix_y[4:1]; //pix_y[5:1]//me define el tamaÒo de la letra
-	assign bit_addr_TIMER = pix_x[3:1]; //pix_x[4:1]//me define el tamaÒo de la letra
-	
-	always @* 
-	begin
-		case(pix_x[6:4]) //coordenadas definidas dependiendo de las coordenadas especificadas anteriormente en TIMER_on
-			4'h2: char_addr_TIMER = 7'h54; //T
-			4'h3: char_addr_TIMER = 7'h49; //I
-			4'h4: char_addr_TIMER = 7'h4d; //M
-			4'h5: char_addr_TIMER = 7'h45; //E
-			4'h6: char_addr_TIMER = 7'h52; //R
-			default: char_addr_TIMER = 7'h00;//Espacio en blanco
-			
-		endcase
-	end
-	*/
-	//7. Mostrar digitos del Timer
+
+	// Mostrar digitos del Timer
 	assign NumTIMER_on = (pix_y[9:5]>=10) && (pix_y[9:5]<=11) && (pix_x[9:6]>=1) && (pix_x[9:6]<=4);
 	assign row_addr_NumTIMER = pix_y[5:2];
 	assign bit_addr_NumTIMER = pix_x[4:2];
@@ -528,37 +405,20 @@ module Generador_Letras(
 		case(pix_x[7:5]) //coordenadas definidas dependiendo de las coordenadas especificadas anteriormente en NumTIMER_on
 			3'h2: char_addr_NumTIMER = {3'b011, digitDec_TimerHORA};//(decenas dia)
 			3'h3: char_addr_NumTIMER = {3'b011, digitUni_TimerHORA};//(unidades dia)
-			//3'h4: char_addr_NumTIMER = 16'h740;// /
 			3'h4: char_addr_NumTIMER = 7'h3a;// :
 			3'h5: char_addr_NumTIMER = {3'b011, digitDec_TimerMIN};//(decenas Mes)
 			3'h6: char_addr_NumTIMER = {3'b011, digitUni_TimerMIN};//(unidades mes)
-			//3'h7: char_addr_NumTIMER = 16'h740;// :
 			3'h7: char_addr_NumTIMER = 7'h3a;// :
-			3'h0: char_addr_NumTIMER = {3'b011, digitDec_TimerSEG};//(decenas aÒo)
-			3'h1: char_addr_NumTIMER = {3'b011, digitUni_TimerSEG};//(unidades aÒo)
-			//default: char_addr_NumTIMER = 16'h000;//Espacio en blanco
+			3'h0: char_addr_NumTIMER = {3'b011, digitDec_TimerSEG};//(decenas a√±o)
+			3'h1: char_addr_NumTIMER = {3'b011, digitUni_TimerSEG};//(unidades a√±o)
 			default: char_addr_NumTIMER = 7'h00;//Espacio en blanco
 		endcase	
 	end
 
-	/*
-	//8. Mostrar Simbolo para la alarma
-	assign SIMBOLO_on = (pix_y[9:5]==10) && (pix_x[9:5]==11);
-	assign row_addr_SIMBOLO = pix_y[4:1]; //pix_y[5:1]
-	assign bit_addr_SIMBOLO = pix_x[3:1]; //pix_x[4:1]
-	always@*
-	begin
-		case(pix_x[9:5]) //coordenadas definidas dependiendo de las coordenadas especificadas anteriormente en SIMBOLO_on
-			//5'd11: char_addr_SIMBOLO = 16'h700; //un ocho por mientras
-			//default: char_addr_SIMBOLO = 16'h000;//Espacio en blanco
-			5'd11: char_addr_SIMBOLO = 7'h06; //un ocho por mientras
-			default: char_addr_SIMBOLO = 7'h00;//Espacio en blanco
-		endcase	
-	end
-	*/
+	
 	
 	assign rom_addr = {char_addr, row_addr};
-   assign font_bit = font_word[~bit_addr];
+  	 assign font_bit = font_word[~bit_addr];
 	
 	//Mostrar en pantalla las letras con los colores definidos
 	//Multiplexar las direcciones del font ROM con salida RBG
@@ -579,21 +439,7 @@ module Generador_Letras(
 			else 
 				graph_rgb = 12'h000;
 			end
-			/*
-		else if (SIMBOLO_on) //Impresion del Simbolo
-									//FALTA AGREGAR LA CONDICION CUANDO PARPADEA LA ALARMA, 
-		begin
-			char_addr = char_addr_SIMBOLO;
-			row_addr = row_addr_SIMBOLO;
-			bit_addr = bit_addr_SIMBOLO;
-				if (font_bit) begin
-					if (Alarma_on==1 && CLK1Hz==1)
-						graph_rgb = 12'hE44; //ROJO-NARANJA
-					else
-					graph_rgb = 12'hFFF;   //blanco
-				end
-		end
-		*/
+			
 		else if (im_H24) graph_rgb = COLOUR_DATA_H24[{STATE_H24}];
 		else if (im_PH) graph_rgb = COLOUR_DATA_PH[{STATE_PH}];
 		else if (im_PF) graph_rgb = COLOUR_DATA_PF[{STATE_PF}];
@@ -602,17 +448,6 @@ module Generador_Letras(
 		else if (im_DT) graph_rgb = COLOUR_DATA_DT[{STATE_DT}];
 		
 		
-		/*
-		if (FECHA_on) //palabra FECHA
-		begin
-			char_addr = char_addr_FECHA;
-			row_addr = row_addr_FECHA;
-			bit_addr = bit_addr_FECHA;
-				if (font_bit) begin
-					graph_rgb = 12'hF7F; 
-				end
-		end
-		*/
 		else if(NumFECHA_on) //Digitos de la fecha
 		begin
 			char_addr = char_addr_NumFECHA;
@@ -624,24 +459,13 @@ module Generador_Letras(
 						graph_rgb = 12'hFE0;//Hace un cursor AMARILLO
 					else if ((pix_y[9:5]<=3) && (pix_y[9:5]>=2) &&(pix_x[9:5]>=5)&&(pix_x[9:5]<7)&&(bandera_cursor[7]==1))   //MES  
 						graph_rgb = 12'hFE0;//Hace un cursor AMARILLO
-					else if ((pix_y[9:5]<=3) && (pix_y[9:5]>=2) &&(pix_x[9:5]>=8)&&(pix_x[9:5]<10)&&(bandera_cursor[6]==1))  //A—O  
+					else if ((pix_y[9:5]<=3) && (pix_y[9:5]>=2) &&(pix_x[9:5]>=8)&&(pix_x[9:5]<10)&&(bandera_cursor[6]==1))  //A√ëO  
 						graph_rgb = 12'hFE0;//Hace un cursor AMARILLO
 					else
 						graph_rgb = 12'hFFF; //blanco
 				end
 		end
 		
-		/*
-		else if (HORA_on)  //Palabra HORA
-		begin
-			char_addr = char_addr_HORA;
-			row_addr = row_addr_HORA;
-			bit_addr = bit_addr_HORA;
-				if (font_bit) begin
-					graph_rgb = 12'h5AF; 
-				end
-		end
-		*/
 		
 		else if (NumHORA_on)  //Digitos de la HORA
 		begin
@@ -661,28 +485,7 @@ module Generador_Letras(
 				end
 		end
 		
-		/*
-		else if (ForMili_on) //Palabra 24H. Posteriormente se har· cambio
-		begin
-			char_addr = char_addr_ForMili;
-			row_addr = row_addr_ForMili;
-			bit_addr = bit_addr_ForMili;
-				if (font_bit) begin
-					graph_rgb = 12'h5AF; //blanco
-				end
-		end
-		*/
-		/*
-		else if (TIMER_on) //Palabra TIMER
-		begin
-			char_addr = char_addr_TIMER;
-			row_addr = row_addr_TIMER;
-			bit_addr = bit_addr_TIMER;
-				if (font_bit) begin
-					graph_rgb = 12'h0FF; //LILA
-				end
-		end
-		*/
+		
 		else if (NumTIMER_on)  //Digitos del Timer
 		begin
 			char_addr = char_addr_NumTIMER;
@@ -701,21 +504,7 @@ module Generador_Letras(
 				end
 		end
 		
-		/*
-		else if (SIMBOLO_on) //Impresion del Simbolo
-									//FALTA AGREGAR LA CONDICION CUANDO PARPADEA LA ALARMA, 
-		begin
-			char_addr = char_addr_SIMBOLO;
-			row_addr = row_addr_SIMBOLO;
-			bit_addr = bit_addr_SIMBOLO;
-				if (font_bit) begin
-					if (Alarma_on==1 && CLK1Hz==1)
-						graph_rgb = 12'hE44; //ROJO-NARANJA
-					else
-					graph_rgb = 12'hFFF;   //blanco
-				end
-		end
-		*/
+		
 		//PARA IMPRIMIR LAS CAJAS
 		else if (Caja_FECHA_on)
 		begin
