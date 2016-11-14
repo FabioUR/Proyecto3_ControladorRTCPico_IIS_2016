@@ -33,6 +33,7 @@ module ESC_LECT_RTC_TB;
 	reg esc_timer;
 	reg stop_ring;
 	reg inic;
+	reg act_timer;
 
 	// Outputs
 	wire a_d;
@@ -75,6 +76,7 @@ module ESC_LECT_RTC_TB;
 	wire tseg_out;
 	wire tmin_out;
 	wire thora_out;
+	wire buf_act;
 	wire ready;
 
 	// Instantiate the Unit Under Test (UUT)
@@ -86,7 +88,8 @@ module ESC_LECT_RTC_TB;
 		.esc_fecha(esc_fecha), 
 		.esc_timer(esc_timer), 
 		.stop_ring(stop_ring), 
-		.inic(inic), 
+		.inic(inic),
+		.act_timer(act_timer),
 		.a_d(a_d), 
 		.cs(cs), 
 		.rd(rd), 
@@ -126,7 +129,8 @@ module ESC_LECT_RTC_TB;
 		.anio_out(anio_out), 
 		.tseg_out(tseg_out), 
 		.tmin_out(tmin_out), 
-		.thora_out(thora_out), 
+		.thora_out(thora_out),
+		.buf_act(buf_act),
 		.ready(ready)
 	);
 	
@@ -143,12 +147,13 @@ module ESC_LECT_RTC_TB;
 		esc_timer = 0;
 		stop_ring = 0;
 		inic = 1;
+		act_timer = 0;
 		
 		#100;
 		reset = 0;
-		#2640;
+		#1750;
 		inic = 0;
-		#360;
+		#250;
 		reset = 1;
 		
 		#100;
@@ -162,44 +167,43 @@ module ESC_LECT_RTC_TB;
 		#100;
 		esc_fecha = 1;
 		reset = 0;
-		#2640;
+		#1750;
 		esc_fecha = 0;
-		#360;
+		#250;
 		reset = 1;
 		
 		#100;
 		esc_hora = 1;
 		reset = 0;
-		#2640;
+		#1750;
 		esc_hora = 0;
-		#360;
+		#250;
 		reset = 1;
 		
 		#100;
 		esc_timer = 1;
 		reset = 0;
-		#2640;
+		#1750;
 		esc_timer = 0;
-		#360;
+		#250;
 		reset = 1;
 
 		#100;
 		stop_ring = 1;
 		reset = 0;
-		#2640;
+		#1750;
 		stop_ring = 0;
-		#360;
-		//reset = 1;
+		#250;
+		reset = 1;
 		
-		/*#100;
-		stop_timer = 1;
+		#100;
+		act_timer = 1;
       reset = 0;
-		#2640;
-		stop_timer = 0;
-		#360;*/
+		#1750;
+		act_timer = 0;
+		#250;
 
 		$stop;
 	end
       
 endmodule
-
